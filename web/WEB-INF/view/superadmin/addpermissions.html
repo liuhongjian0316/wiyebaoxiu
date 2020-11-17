@@ -136,7 +136,9 @@
         <table class="layui-hide" id="demo" lay-filter="test"></table>
     </div>
 </div>
-
+<script type="text/html" id="roleTpl">
+    <span id="roleVal"></span>
+</script>
 
 <script type="text/html" id="barDemo3">
     {{#  if(d.pid == 0){ }}
@@ -173,7 +175,7 @@
             ,laytpl = layui.laytpl
         ;
         var dataList = [];
-
+        let role = null;
         //下拉框初始化(一二级菜单)
         $.ajax({
             url: '/menu/alllist',
@@ -205,12 +207,12 @@
                 $(".close").on('click',function () {
                     var dom = $(this);
                     layer.confirm('确定删除这吗', {btn: ['确认', '关闭'],btn1:function (index) {
-                            if(dom.prev().val()==1||dom.prev().val() ==2 || dom.prev().val() ==3 ||dom.prev().val()==4){
+                            if(dom.prev().val()==1||dom.prev().val() ==2 || dom.prev().val() ==3 ||dom.prev().val()==4 ||dom.prev().val() == 5){
                                 layer.alert("不允许删除")
                                 return;
                             }
                             $.ajax({
-                                url: '/car/user/delRoleById?id='+dom.prev().val(),
+                                url: '/role/del?id='+dom.prev().val(),
                                 dataType: 'json',
                                 type: 'get',
                                 success: function (data) {
@@ -230,6 +232,7 @@
             }
         })
         window.loadrole = function (roleid) {
+            role = roleid;
             var insTb = treeTable.render({
                 elem: '#treeList',
                 url:'/menu/role/'+roleid,
@@ -241,13 +244,12 @@
                 },
                 cols: [[
                     {type: 'numbers'},
-                    {field: 'id', title: 'roleid',width: 50,hide: true},
+                    {field: 'id', title: 'id',width: 50,hide: true},
                     {field: 'name', title: '名称',width: 390},
                     {field: 'pid', title: '父菜单',hide: true},
                     {fixed: 'right', title:'操作',width: 380, align:'center', toolbar: '#barDemo3'}
                 ]],
             });
-
             //监听行工具
             //每次需要传roleid menuid
             treeTable.on('tool(treeList)', function(obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
@@ -335,7 +337,7 @@
                                 var loginLoadIndex = layer.load(2);
                                 $.ajax({
                                     type:'post',
-                                    url:'/car/menu/rmadd',
+                                    url:'/role/addrm',
                                     dataType:'json',
                                     data:JSON.stringify(data.field),
                                     contentType:'application/json',
@@ -430,7 +432,7 @@
                         var loginLoadIndex = layer.load(2);
                         $.ajax({
                             type:'get',
-                            url:'/car/menu/rmdel?roleid='+data.id+'&menuid='+data.menuid,
+                            url:'/role/delrm?roleid='+role+'&menuid='+data.id,
                             dataType:'json',
                             contentType:'application/json',
                             success:function (data) {
@@ -458,7 +460,7 @@
         $("#addMenu").on('click',function () {
             //ztree
             $.ajax({
-                url: '/menu/add',
+                url: '/menu/alllist',
                 dataType: 'json',
                 type: 'get',
                 async:false,
@@ -537,7 +539,7 @@
                         var loginLoadIndex = layer.load(2);
                         $.ajax({
                             type:'post',
-                            url:'/car/menu/rmadd',
+                            url:'/role/addrm',
                             dataType:'json',
                             data:JSON.stringify(data.field),
                             contentType:'application/json',
@@ -590,7 +592,7 @@
             if (evt.keyCode == "13") {
                 $.ajax({
                     type:'get',
-                    url:'/role/addrole?role='+$("#sd").val(),
+                    url:'/role/add?role='+$("#sd").val(),
                     dataType:'json',
                     async: false,
                     contentType:'application/json',
@@ -687,7 +689,7 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">角色</label>
                         <div class="layui-input-block">
-                            <input type="text" name="roleid" required  lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input" id="roleid">
+                            <input type="text" name="roleId" required  lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input" id="roleid">
                         </div>
                     </div>
                 </div>
@@ -695,7 +697,7 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">菜单</label>
                         <div class="layui-input-block">
-                            <select name="menuid" lay-verify="required" lay-search  id="menuid">
+                            <select name="menuId" lay-verify="required" lay-search  id="menuid">
                                 <option value="">请选择</option>
                             </select>
                         </div>

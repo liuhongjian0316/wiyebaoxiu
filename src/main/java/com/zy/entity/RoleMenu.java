@@ -1,5 +1,9 @@
 package com.zy.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
 
 /**
@@ -13,6 +17,7 @@ public class RoleMenu implements Serializable {
     /**
     * 主键
     */
+    @TableId(value = "id",type = IdType.AUTO)
     private Integer id;
     /**
     * 角色id
