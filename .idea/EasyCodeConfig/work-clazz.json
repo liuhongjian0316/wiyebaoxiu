@@ -1,0 +1,27 @@
+{
+  "name" : "Clazz",
+  "originTableName" : "clazz",
+  "comment" : null,
+  "fullColumn" : [ {
+    "name" : "classid",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "ktShortType" : "Int",
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "classname",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "ktShortType" : "String",
+    "custom" : false,
+    "ext" : { }
+  } ],
+  "pkColumn" : null,
+  "otherColumn" : null,
+  "savePackageName" : "com.zy",
+  "savePath" : "./src/main/java/com/zy",
+  "saveModelName" : "wiyebaoxiu"
+}

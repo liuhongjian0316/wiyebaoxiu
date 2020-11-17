@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.dao.DepartDao">
+
+    <resultMap id="BaseResultMap" type="com.zy.entity.Depart">
+        <!--@Table depart-->
+        <result property="departid" column="departid" jdbcType="INTEGER"/>
+        <result property="departname" column="departname" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select
+          departid, departname
+        from property.depart
+        where departid = #{departid}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select
+          departid, departname
+        from property.depart
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+          departid, departname
+        from property.depart
+        <where>
+            <if test="departid != null">
+                and departid = #{departid}
+            </if>
+            <if test="departname != null and departname != ''">
+                and departname = #{departname}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="departid" useGeneratedKeys="true">
+        insert into property.depart(departname)
+        values (#{departname})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update property.depart
+        <set>
+            <if test="departname != null and departname != ''">
+                departname = #{departname},
+            </if>
+        </set>
+        where departid = #{departid}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from property.depart where departid = #{departid}
+    </delete>
+
+</mapper>

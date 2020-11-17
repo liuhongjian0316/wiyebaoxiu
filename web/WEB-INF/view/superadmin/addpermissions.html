@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>角色赋权</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/ztree/zTreeStyle.css">
+    <style>
+        .left-content .leftlevel1.active>div>ul{
+            padding-left: 50px;
+        }
+
+        .ztree li a{
+            padding-top: 6px;
+            height: 30px;
+        }
+        .ztree li a:hover{
+            text-decoration: none;
+        }
+        .ztree li a{
+            color: #bababa;
+        }
+        .ztree li a.level0{
+            color: #666666;
+            font-weight: 1000;
+        }
+        .ztree li a.level1{
+            color: #9e9e9e;
+        }
+
+        /*开关按钮*/
+        .ztree .bottom_close,.ztree .bottom_open{
+            z-index: 1000;
+        }
+        .ztree li span.button{
+            background-image: url("../static/ztree/img/diy/arrow-curve-000-left.png");
+        }
+        .ztree li span.button.bottom_close,.ztree li span.button.root_close,.ztree li span.button.center_close{
+            background-image: url("../static/ztree/img/diy/arrow-curve-000-left.png");
+            background-position: 18px 7px;
+        }
+        .ztree li span.button.bottom_open,.ztree li span.button.root_open,.ztree li span.button.center_open{
+            background-image: url("../static/ztree/img/diy/arrow-curve-270-left.png");
+            background-position: 15px 10px;
+        }
+        /*.ztree li a.curSelectedNode span.button.bottom_close,.ztree li a.curSelectedNode span.button.root_close,.ztree li a.curSelectedNode span.button.center_close{
+            background-image: url("../../imgs/glyphicon/treeright.png");
+            background-position: 18px 7px;
+        }
+        .ztree li a.curSelectedNode span.button.bottom_open,.ztree li a.curSelectedNode span.button.root_open,.ztree li a.curSelectedNode span.button.center_open{
+            background-image: url("../../imgs/glyphicon/treedown.png");
+            background-position: 15px 10px;
+        }*/
+        .ztree li span.button.switch{
+            height: 25px;
+            width: 25px;
+            /*background-size: 100% 100%;*/
+        }
+        .ztree li span.button.switch.bottom_docu,.ztree li span.button.switch.center_docu{
+            background: none;
+        }
+
+
+        /*节点图标*/
+        .ztree li span.button.ico_close,.ztree li span.button.ico_open,.ztree li span.button.ico_docu{
+            background-image: url("../static/ztree/img/diy/1_open.png");
+            background-position: 0 0;
+            background-size: 100% 100%;
+            margin: 0 5px;
+        }
+        .ztree li a.curSelectedNode span.button.ico_close,.ztree li a.curSelectedNode span.button.ico_open,.ztree li a.curSelectedNode span.button.ico_docu{
+            background-image: url("../static/ztree/img/diy/1_open.png");
+        }
+
+
+        /*被选中的a   目前仅支持三级树样式，如果增加层级，可增加level层级left和padding-left样式即可*/
+        .ztree li a.curSelectedNode{
+            position: relative;
+            width: 258px;
+            height: 30px;
+            padding-top: 6px;
+            color: #FFFFFF;
+            z-index: -1;
+            background-color: #0091fe;
+            border: none;
+        }
+        .curSelectedNode.level0{
+            left: -94px;
+            padding-left: 94px;
+        }
+        .curSelectedNode.level1{
+            left: -111px;
+            padding-left: 110px;
+        }
+        .curSelectedNode.level2{
+            left: -129px;
+            padding-left: 129px;
+        }
+        .curSelectedNode.level3{
+            left: -148px;
+            padding-left: 148px;
+        }
+        .curSelectedNode.level4{
+            left: -166px;
+            padding-left: 166px;
+        }
+        .curSelectedNode.level5{
+            left: -183px;
+            padding-left: 183px;
+        }
+
+        .wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .close:before {
+            content: '✕';
+        }
+        .close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div style="padding: 20px; background-color: #F2F2F2;max-height: 100%">
+    <div id="addgroup">
+        角色：
+    </div >
+    <button type="button" class="layui-btn" id="addBtn">
+        <i class="layui-icon">&#xe608;</i> 添加
+    </button>
+    <div class="layui-card">
+        <table class="layui-hide" id="demo" lay-filter="test"></table>
+    </div>
+</div>
+
+
+<script type="text/html" id="barDemo3">
+    {{#  if(d.pid == 0){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="add">添加</a>
+    {{#  }   }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script src="/static/jquery/jquery-3.4.1.min.js"></script>
+<script src="/static/layui/layui.js"></script>
+<script src="/static/layui/treeTable.js"></script>
+<script src="/static/ztree/jquery.ztree.core.js"></script>
+<script src="/static/ztree/jquery.ztree.excheck.js"></script>
+<script th:inline="none">
+    layui.config({
+        version: '1584613945938' ,//为了更新 js 缓存，可忽略
+        base: '/static/layui'
+    }).extend({
+        treeTable: '/treetable'
+    });
+
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider','tree',"treeTable","laytpl"], function(){
+        var laydate = layui.laydate //日期
+            ,laypage = layui.laypage //分页
+            ,layer = layui.layer //弹层
+            ,table = layui.table //表格
+            ,form = layui.form //表单
+            ,carousel = layui.carousel //轮播
+            ,upload = layui.upload //上传
+            ,element = layui.element //元素操作
+            ,slider = layui.slider //滑块
+            ,tree = layui.tree
+            ,treeTable = layui.treeTable
+            ,laytpl = layui.laytpl
+        ;
+        var dataList = [];
+
+        //下拉框初始化(一二级菜单)
+        $.ajax({
+            url: '/menu/alllist',
+            dataType: 'json',
+            type: 'get',
+            success: function (data) {
+                $.each(data, function (index, item) {
+                    $('#menuid').append(new Option(item.name, item.id));// 下拉菜单里添加元素
+                    $('#menuid2').append(new Option(item.name, item.id));// 下拉菜单里添加元素
+                });
+
+                layui.form.render("select");
+            }
+        })
+        //获取全部role
+        $.ajax({
+            url: '/role/list',
+            dataType: 'json',
+            type: 'get',
+            success: function (data) {
+                $.each(data, function (index, item) {
+                    $('#roleid4').append(new Option(item.rolename, item.roleid));// 下拉菜单里添加元素
+                    $("#addgroup").append("<div class=\"wrapper\">\n" +
+                        "            <button class=\"layui-btn layui-btn-primary\" onclick=openRole("+item.roleid+") id =" + item.roleid +" value=" + item.roleid +">"+item.rolename+"</button>\n" +
+                        "            <span class=\"close\"></span>\n" +
+                        "        </div>")
+                });
+                //角色按钮上的X监听
+                $(".close").on('click',function () {
+                    var dom = $(this);
+                    layer.confirm('确定删除这吗', {btn: ['确认', '关闭'],btn1:function (index) {
+                            if(dom.prev().val()==1||dom.prev().val() ==2 || dom.prev().val() ==3 ||dom.prev().val()==4){
+                                layer.alert("不允许删除")
+                                return;
+                            }
+                            $.ajax({
+                                url: '/car/user/delRoleById?id='+dom.prev().val(),
+                                dataType: 'json',
+                                type: 'get',
+                                success: function (data) {
+                                    if (data.status == "200") {
+                                        $(dom).parent().remove();
+                                        layer.close(index);
+                                        location.reload();
+                                    }else{
+                                        //
+                                    }
+                                }
+                            })
+                        },btn2:function () {
+                            layer.closeAll();
+                        }} );
+                })
+            }
+        })
+        window.loadrole = function (roleid) {
+            var insTb = treeTable.render({
+                elem: '#treeList',
+                url:'/menu/role/'+roleid,
+                tree: {
+                    iconIndex: 2,           // 折叠图标显示在第几列
+                    isPidData: true,        // 是否是id、pid形式数据
+                    idName: 'id',  // id字段名称
+                    pidName: 'pid'     // pid字段名称
+                },
+                cols: [[
+                    {type: 'numbers'},
+                    {field: 'id', title: 'roleid',width: 50,hide: true},
+                    {field: 'name', title: '名称',width: 390},
+                    {field: 'pid', title: '父菜单',hide: true},
+                    {fixed: 'right', title:'操作',width: 380, align:'center', toolbar: '#barDemo3'}
+                ]],
+            });
+
+            //监听行工具
+            //每次需要传roleid menuid
+            treeTable.on('tool(treeList)', function(obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+                var data = obj.data //获得当前行数据
+                    , layEvent = obj.event; //获得 lay-event 对应的值
+                if (layEvent === 'add') {
+                    //ztree
+                    $.ajax({
+                        url: '/menu/alllist',
+                        dataType: 'json',
+                        type: 'get',
+                        async:false,
+                        success: function (data) {
+                            var setting = {
+                                check: {
+                                    enable: true
+                                },
+                                data: {
+                                    key:{
+                                        name:"name"
+                                    },
+                                    simpleData: {
+                                        enable: true,
+                                        idKey: "id",
+                                        pIdKey: "pid",
+                                        rootPId: "0"
+                                    }
+                                },
+                                view : {
+                                    dblClickExpand : false
+                                },
+                                callback: {
+                                    //禁止节点被选中
+                                    beforeClick:function (treeId, treeNode, clickFlag) {
+                                        var treeObj = $.fn.zTree.getZTreeObj(treeId);
+                                        var status = treeNode.checked;
+                                        treeObj.checkAllNodes(false);
+                                        treeObj.checkNode(treeNode, status, false);
+                                        $('#menuid').val(treeNode.id);
+                                        form.render();
+                                        if(treeNode.pid == 0){
+                                            treeObj.setChkDisabled(treeNode,tree);
+                                            return false;
+                                        }
+                                        //禁止节点被选中
+                                        var e =  e ||window.event;
+                                        e.stopPropagation();
+                                        return false;
+                                    },
+                                    onCheck:function (e, treeId, treeNode) {
+                                        var treeObj = $.fn.zTree.getZTreeObj(treeId);
+                                        var status = treeNode.checked;
+                                        if(treeNode.pid == 0){
+                                            //layer.msg("子菜单禁止选择");
+                                            treeObj.setChkDisabled(treeNode,tree);
+                                        }
+                                        treeObj.checkAllNodes(false);
+                                        treeObj.checkNode(treeNode, status, false);
+                                        $('#menuid').val(treeNode.id);
+                                        form.render();
+                                    },
+                                }
+                            };
+                            setting.check.chkboxType = { "Y" : "", "N" : "" };
+                            zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, data);
+                        }
+                    })
+                    layer.open({
+                        type: 1,
+                        title: '增加菜单', //不显示标题栏
+                        closeBtn: 2,
+                        offset: '10px',
+                        area: ['820px','585px'],
+                        shade: 0.8,
+                        id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
+                        btn: ['保存','取消'],
+                        btnAlign: 'r',
+                        moveType: 1, //拖拽模式，0或者1
+                        content:$('.addPage'),
+                        yes: function (index, layero) {
+                            //触发提交按钮
+                            layero.find('form').find('a[lay-submit]').click();
+                            //修改按钮触发
+                            form.on('submit(AddformDemo)', function(data){
+                                var loginLoadIndex = layer.load(2);
+                                $.ajax({
+                                    type:'post',
+                                    url:'/car/menu/rmadd',
+                                    dataType:'json',
+                                    data:JSON.stringify(data.field),
+                                    contentType:'application/json',
+                                    success:function (data) {
+                                        layer.close(loginLoadIndex);
+                                        if (data.status == "200"){
+                                            layer.msg('添加成功');
+                                            insTb.refresh();
+                                        }else{
+                                            layer.close(loginLoadIndex);
+                                            layer.alert("添加失败");
+                                            $('#loginBtn').val("立即提交");
+                                        }
+                                    },
+                                    error:function () {
+                                        layer.close(loginLoadIndex);
+                                        layer.alert("网络不佳，请稍后重试");
+                                        $('#formDemo').val("正在添加...");
+                                    }
+                                });
+                            });
+                        }
+                    });
+                } else if (layEvent === 'edit') {
+                    //修改模态框赋值
+                    $.ajax({
+                        type:'get',
+                        url:'/car/menu/getByRm?roleid='+data.id+'&menuid='+data.menuid,
+                        dataType:'json',
+                        async: false,
+                        contentType:'application/json',
+                        success:function (data) {
+                            //赋初始值
+                            form.val("Editformdata",{
+                                "roleid":data.data[0].roleid
+                                ,"menuid":data.data[0].menuid
+                                ,"roleid2":data.data[0].roleid
+                                ,"menuid2":data.data[0].menuid
+                            });
+                        },
+                        error:function () {
+                            layer.alert("网络不佳，数据获取不到");
+                        }
+                    });
+                    //打开编辑模态框
+                    layer.open({
+                        type: 1,
+                        title: '编辑信息', //不显示标题栏
+                        closeBtn: 2,
+                        offset: '10px',
+                        area: ['820px','585px'],
+                        shade: 0.8,
+                        id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
+                        btn: ['保存','取消'],
+                        btnAlign: 'r',
+                        moveType: 1, //拖拽模式，0或者1
+                        content:$('.editPage'),
+                        yes: function (index, layero) {
+                            //触发提交按钮
+                            layero.find('form').find('a[lay-submit]').click();
+                            //修改按钮触发
+                            form.on('submit(EditformDemo)', function(data){
+                                var loginLoadIndex = layer.load(2);
+                                $.ajax({
+                                    type:'post',
+                                    url:'/car/menu/rmedit',
+                                    dataType:'json',
+                                    data:JSON.stringify(data.field),
+                                    contentType:'application/json',
+                                    success:function (data) {
+                                        layer.close(loginLoadIndex);
+                                        if (data.status == "200"){
+                                            layer.msgs("修改成功");
+                                            insTb.refresh();
+                                        }else{
+                                            layer.close(loginLoadIndex);
+                                            layer.alert("修改失败");
+                                            $('#loginBtn').val("立即提交");
+                                        }
+                                    },
+                                    error:function () {
+                                        layer.close(loginLoadIndex);
+                                        layer.alert("网络不佳，请稍后重试");
+                                        $('#formDemo').val("正在添加...");
+                                    }
+                                });
+                            });
+                        }
+                    });
+                } else if(layEvent === 'del'){
+                    layer.confirm('确认删除吗', function(index){
+                        var loginLoadIndex = layer.load(2);
+                        $.ajax({
+                            type:'get',
+                            url:'/car/menu/rmdel?roleid='+data.id+'&menuid='+data.menuid,
+                            dataType:'json',
+                            contentType:'application/json',
+                            success:function (data) {
+                                layer.close(loginLoadIndex);
+                                if (data.status == "200"){
+                                    layer.msg("删除成功");
+                                    insTb.refresh();
+                                }else{
+                                    layer.close(loginLoadIndex);
+                                    layer.alert("删除失败");
+                                    $('#loginBtn').val("立即提交");
+                                }
+                            },
+                            error:function () {
+                                layer.close(loginLoadIndex);
+                                layer.alert("网络不佳，请稍后重试");
+                                $('#formDemo').val("正在添加...");
+                            }
+                        });
+                    });
+                }
+            });
+        }
+        //添加
+        $("#addMenu").on('click',function () {
+            //ztree
+            $.ajax({
+                url: '/menu/add',
+                dataType: 'json',
+                type: 'get',
+                async:false,
+                success: function (data) {
+                    var setting = {
+                        check: {
+                            enable: true
+                        },
+                        data: {
+                            key:{
+                                name:"name"
+                            },
+                            simpleData: {
+                                enable: true,
+                                idKey: "id",
+                                pIdKey: "pid",
+                                rootPId: "0"
+                            }
+                        },
+                        view : {
+                            dblClickExpand : false
+                        },
+                        callback: {
+                            //禁止节点被选中
+                            beforeClick:function (treeId, treeNode, clickFlag) {
+                                var treeObj = $.fn.zTree.getZTreeObj(treeId);
+                                var status = treeNode.checked;
+                                treeObj.checkAllNodes(false);
+                                treeObj.checkNode(treeNode, status, false);
+                                $('#menuid').val(treeNode.id);
+                                form.render();
+                                if(treeNode.pid == 0){
+                                    treeObj.setChkDisabled(treeNode,tree);
+                                    return false;
+                                }
+                                //禁止节点被选中
+                                var e =  e ||window.event;
+                                e.stopPropagation();
+                                return false;
+                            },
+                            onCheck:function (e, treeId, treeNode) {
+                                var treeObj = $.fn.zTree.getZTreeObj(treeId);
+                                var status = treeNode.checked;
+                                if(treeNode.pid == 0){
+                                    //layer.msg("子菜单禁止选择");
+                                    treeObj.setChkDisabled(treeNode,tree);
+                                }
+                                treeObj.checkAllNodes(false);
+                                treeObj.checkNode(treeNode, status, false);
+                                $('#menuid').val(treeNode.mid);
+                                form.render();
+                            },
+                        }
+                    };
+                    setting.check.chkboxType = { "Y" : "", "N" : "" };
+                    zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, data);
+                }
+            })
+            layer.open({
+                type: 1,
+                title: '增加菜单', //不显示标题栏
+                closeBtn: 2,
+                offset: '10px',
+                area: ['820px','585px'],
+                shade: 0.8,
+                id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
+                btn: ['保存','取消'],
+                btnAlign: 'r',
+                moveType: 1, //拖拽模式，0或者1
+                content:$('.addPage'),
+                yes: function (index, layero) {
+                    //触发提交按钮
+                    layero.find('form').find('a[lay-submit]').click();
+                    //修改按钮触发
+                    form.on('submit(AddformDemo)', function(data){
+                        var loginLoadIndex = layer.load(2);
+                        $.ajax({
+                            type:'post',
+                            url:'/car/menu/rmadd',
+                            dataType:'json',
+                            data:JSON.stringify(data.field),
+                            contentType:'application/json',
+                            success:function (data) {
+                                layer.close(loginLoadIndex);
+                                if (data.status == "200"){
+                                    layer.msg('添加成功',{time:2000},function () {
+                                        insTb.refresh();
+                                    });
+                                }else{
+                                    layer.close(loginLoadIndex);
+                                    layer.alert("添加失败");
+                                    $('#loginBtn').val("立即提交");
+                                }
+                            },
+                            error:function () {
+                                layer.close(loginLoadIndex);
+                                layer.alert("网络不佳，请稍后重试");
+                                $('#formDemo').val("正在添加...");
+                            }
+                        });
+                    });
+                }
+            });
+        })
+        $("#addBtn").on('click',function () {
+            $("#addgroup").append('<div class="wrapper">\n' +
+                '            <button class="layui-btn layui-btn-primary"><span ondblclick="ShowElement(this)" onkeydown="enterEvent(event)">未命名</span></button>\n' +
+                '            <span class="close"></span>\n' +
+                '        </div>');
+            console.log('addBtn');
+            $(".close").on('click',function () {
+                var dom = $(this);
+                layer.confirm('确定删除这吗', {btn: ['确认', '关闭'],btn1:function (index) {
+                        if(dom.prev().val()==1||dom.prev().val() ==2 || dom.prev().val() ==3 ||dom.prev().val()==4){
+                            layer.alert("不允许删除")
+                            return;
+                        }
+                        $(dom).parent().remove();
+                        layer.close(index);
+                    },btn2:function () {
+                        layer.closeAll();
+                    }} );
+            })
+
+        })
+        //回车执行添加
+        window.enterEvent = function(e){
+            var evt = window.event || e;
+            if (evt.keyCode == "13") {
+                $.ajax({
+                    type:'get',
+                    url:'/role/addrole?role='+$("#sd").val(),
+                    dataType:'json',
+                    async: false,
+                    contentType:'application/json',
+                    success:function (data) {
+                        if (data.status == "200"){
+                            layer.alert("添加成功",function () {
+                                location.reload();
+                            })
+                        }else{
+                            layer.alert("角色重复",function () {
+                                location.reload();
+                            })
+                        }
+                    },
+                    error:function () {
+                        layer.alert("网络不佳，数据获取不到");
+                    }
+                });
+                return;
+            }
+        }
+        window.ShowElement = function (element) {
+            var oldhtml = element.innerHTML;
+            //创建新的input元素
+            var newobj = document.createElement('input');
+            //为新增元素添加类型
+            newobj.type = 'text';
+            //新增加id 方便添加时获取值
+            newobj.id = "sd";
+            //为新增元素添加value值
+            newobj.value = oldhtml;
+            //为新增元素添加光标离开事件
+            newobj.onblur = function() {
+                element.innerHTML = this.value == oldhtml ? oldhtml : this.value;
+                //当触发时判断新增元素值是否为空，为空则不修改，并返回原有值
+            }
+            //设置该标签的子节点为空
+            element.innerHTML = '';
+            //添加该标签的子节点，input对象
+            element.appendChild(newobj);
+            //设置选择文本的内容或设置光标位置（两个参数：start,end；start为开始位置，end为结束位置；如果开始位置和结束位置相同则就是光标位置）
+            newobj.setSelectionRange(0, oldhtml.length);
+            //设置获得光标
+            newobj.focus();
+        }
+    });
+    window.openRole = function(roleid){
+        loadrole(roleid);
+        $("#roleid").val(roleid);
+        layer.open({
+            type: 1,
+            title: '权限列表', //不显示标题栏
+            closeBtn: 2,
+            offset: '10px',
+            area: ['820px','585px'],
+            shade: 0.8,
+            id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
+            btn: [],
+            btnAlign: 'r',
+            moveType: 1, //拖拽模式，0或者1
+            content:$('.rolepage'),
+            yes: function (index, layero) {
+
+            },
+        });
+    }
+</script>
+</body>
+
+<div class="detailsPage" style="display: none">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <i class="layui-icon layui-icon-tabs">数据列表</i> <i style="float: right;"></i>
+        </div>
+    </div>
+    <ul id="tree" class="ztree"></ul>
+</div>
+<div class="rolepage" style="display: none" >
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <i class="layui-icon layui-icon-tabs">数据列表</i>
+            <i style="float: right;">
+                <a class="layui-btn layui-btn-normal" id="addMenu">添加</a>
+            </i>
+        </div>
+        <div id="treeList"></div>
+    </div>
+</div>
+<div class="addPage" style="display: none">
+    <form class="layui-form" lay-filter="Addformdata">
+        <div class="layui-row">
+            <div class="layui-col-md6">
+                <div class="layui-col-md12" style="display:none;">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">角色</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="roleid" required  lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input" id="roleid">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md12">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">菜单</label>
+                        <div class="layui-input-block">
+                            <select name="menuid" lay-verify="required" lay-search  id="menuid">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md6">
+                <div style="width: 100%;font-size: 30px;">
+                    <div style="border: 1px solid black;position: absolute;left: 40%;">
+                        <ul id="treeDemo" class="ztree"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block" style="display: none">
+                <a class="layui-btn" lay-submit lay-filter="AddformDemo" style="display: none">立即提交</a>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="editPage" style="display: none">
+    <form class="layui-form" lay-filter="Editformdata">
+        <!--原来的值-->
+        <input type="text" name="roleid2" style="display: none">
+        <!--原来的值-->
+        <input type="text" name="menuid2" style="display: none">
+
+        <div class="layui-row">
+            <div class="layui-col-md12">
+                <div class="layui-form-item" style="display:none;">
+                    <label class="layui-form-label">roleid</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="roleid" required  lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input" id="roleid2">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md12">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">menuid</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="menuid" required  lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input" id="menuid2">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block" style="display: none">
+                <a class="layui-btn" lay-submit lay-filter="EditformDemo" style="display: none">立即提交</a>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="editPage2" style="display: none">
+    <form class="layui-form" lay-filter="editformdata2">
+        <input type="text" name="userinfoid" style="display: none" id="userinfoid4">
+        <div class="layui-form-item">
+            <label class="layui-form-label">账号</label>
+            <div class="layui-input-block">
+                <input type="text" name="userAccount" required  placeholder="请输入账号" autocomplete="off" class="layui-input" id="userAccount4" readonly="readonly">
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <label class="layui-form-label">姓名</label>
+            <div class="layui-input-block">
+                <input type="text" name="userName" required  lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input" readonly="readonly" style="display: none">
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-block">
+                <input type="text" name="pwd" required  lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input" id="pwd" readonly="readonly" style="display: none">
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-block">
+                <select name="sex" lay-verify="required">
+                    <option value=""></option>
+                    <option value="0">男</option>
+                    <option value="1">女</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <label class="layui-form-label">手机号</label>
+            <div class="layui-input-block">
+                <input type="text" name="tel" required   placeholder="请输入手机号" autocomplete="off" class="layui-input" id="tel2" readonly="readonly" style="display: none">
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <label class="layui-form-label">地址</label>
+            <div class="layui-input-block">
+                <input type="text" name="addr" required  lay-verify="required" placeholder="请输入地址" autocomplete="off" class="layui-input" readonly="readonly" style="display: none">
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <label class="layui-form-label">部门</label>
+            <div class="layui-input-block">
+                <select name="departName" lay-verify="required" id="departName4" lay-search readonly="readonly" style="display: none">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">角色</label>
+            <div class="layui-input-block">
+                <select name="roleid" lay-verify="required" id="roleid4">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block" style="display: none">
+                <a class="layui-btn" lay-submit lay-filter="EditformDemo2" style="display: none">立即提交</a>
+                <button type="reset" class="layui-btn layui-btn-primary" style="display: none" >重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+</html>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zy.dao.WoktypeDao">
+
+    <resultMap id="BaseResultMap" type="com.zy.entity.Woktype">
+        <!--@Table woktype-->
+        <result property="worktypeid" column="worktypeid" jdbcType="INTEGER"/>
+        <result property="workname" column="workname" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select
+          worktypeid, workname
+        from property.woktype
+        where worktypeid = #{worktypeid}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select
+          worktypeid, workname
+        from property.woktype
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+          worktypeid, workname
+        from property.woktype
+        <where>
+            <if test="worktypeid != null">
+                and worktypeid = #{worktypeid}
+            </if>
+            <if test="workname != null and workname != ''">
+                and workname = #{workname}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="worktypeid" useGeneratedKeys="true">
+        insert into property.woktype(workname)
+        values (#{workname})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update property.woktype
+        <set>
+            <if test="workname != null and workname != ''">
+                workname = #{workname},
+            </if>
+        </set>
+        where worktypeid = #{worktypeid}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from property.woktype where worktypeid = #{worktypeid}
+    </delete>
+
+</mapper>

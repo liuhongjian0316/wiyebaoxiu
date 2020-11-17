@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>主页</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/mystyle/css/admin.css">
+    <style>
+        .demo-input{padding-left: 10px; height: 38px; min-width: 200px; line-height: 38px; border: 1px solid #e6e6e6;  background-color: #fff;  border-radius: 2px;}
+        .right div{
+            margin-top: 10px;
+        }
+        .right a:hover{
+            color: #007DDB;
+        }
+    </style>
+</head>
+<body>
+<div style="position: fixed;right: 0px;top:200px;z-index: 99999;width: 50px;background: #FFF" class="right">
+    <div><a class="layui-icon layui-icon-search" href="#fandanmaodian">订单</a></div>
+    <div><a class="layui-icon layui-icon-search" href="#diaodumaodian"></a></div>
+    <div><a class="layui-icon layui-icon-search" href="#drivermaodian"></a></div>
+    <div><a class="layui-icon layui-icon-search" href="#applymaodian"></a></div>
+    <div><a class="layui-icon layui-icon-search" href="#carmaodian"></a></div>
+</div>
+<div style="padding: 20px; background-color: #F2F2F2;max-height: 100%">
+    <div class="layui-fluid" id="mainPage">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-sm6 layui-col-md3">
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        维修员
+                        <span class="layui-badge layui-bg-blue layuiadmin-badge">人</span>
+                    </div>
+                    <div class="layui-card-body layuiadmin-card-list">
+                        <p class="layuiadmin-big-font" id="allCar">9,999,666</p>
+                        <p>
+                            正常
+                            <span class="layuiadmin-span-color" ><span id="ableCar">88万</span> <i class="layui-inline layui-icon layui-icon-flag"></i></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-sm6 layui-col-md3">
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        商户
+                        <span class="layui-badge layui-bg-cyan layuiadmin-badge">人</span>
+                    </div>
+                    <div class="layui-card-body layuiadmin-card-list">
+                        <p class="layuiadmin-big-font" id="allUser">33,555</p>
+                        <p>
+                            商户
+                            <span class="layuiadmin-span-color"><span id="ordUser"></span><i class="layui-inline layui-icon layui-icon-user"></i></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-sm6 layui-col-md3">
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        普通订单
+                        <span class="layui-badge layui-bg-green layuiadmin-badge">单</span>
+                    </div>
+                    <div class="layui-card-body layuiadmin-card-list">
+
+                        <p class="layuiadmin-big-font" id="allDriver">999,666</p>
+                        <p>
+                            悬赏订单
+                            <span class="layuiadmin-span-color"><span id="ableDriver"> </span> <i class="layui-inline layui-icon layui-icon-user"></i></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-sm6 layui-col-md3">
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        正在进行
+                        <span class="layui-badge layui-bg-orange layuiadmin-badge">单</span>
+                    </div>
+                    <div class="layui-card-body layuiadmin-card-list">
+
+                        <p class="layuiadmin-big-font" id="allCarModel">66,666</p>
+                        <p>
+                            已完成
+                            <span class="layuiadmin-span-color"><span id="allCartype">120</span> <i class="layui-inline layui-icon layui-icon-user"></i></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-sm12">
+                <div class="layui-card">
+                    <div class="layui-card-header">数据概览</div>
+                    <div class="layui-card-body">
+                        <!--轮播-->
+                        <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade" lay-filter="LAY-index-dataview">
+                            <div class="layui-carousel" id="test1">
+                                <div carousel-item>
+                                    <div><div id="getCartypeDate" style="width:100%;height: 280px"></div></div>
+                                    <div><div id="getCarModelDate" style="width:1000%;height: 280px"></div></div>
+                                    <div><div id="getCarStateDate" style="width:1000%;height: 280px"></div></div>
+                                    <div><div id="getUserDate" style="width:1000%;height: 280px"></div></div>
+                                    <div><div id="getConsumption" style="width:1000%;height: 280px"></div></div>
+                                    <div><div id="getTicket" style="width:1000%;height: 280px"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="padding: 20px; background-color: #F2F2F2;max-height: 100%"  id="fandanmaodian">
+    <div class="layui-card">
+        <div class="layui-card-header">订单信息</div>
+        <div class="layui-card-body">
+            <div class="layui-tab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">总览</li>
+                    <li>订单详情</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <div class="layui-row">
+                            <div class="layui-col-md12">
+                                <!--部门占比-->
+                                <div style="width: 100%;height: 500px" id="numOfBorrow"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-tab-item">
+                        <div class="layui-tab-item layui-show">
+                            <!--时间-订单-->
+                            <form class="layui-form">
+                                <div class="layui-row">
+                                    <div class="layui-form">
+                                        <div class="layui-col-md12">
+                                            <div class="layui-col-md3">
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label">时间</label>
+                                                    <div class="layui-input-block">
+                                                        <input name="time" class="demo-input" placeholder="请选择日期" id="time" readonly="readonly">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="layui-col-md4">
+                                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                                <a class="layui-btn layui-btn-danger" id="searchTicket" style="display: none">搜素</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="layui-col-md12">
+                                        <div style="width: 1024px;height: 500px" id="numOfTicketTime"></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="/static/jquery/jquery-3.4.1.min.js"></script>
+<script src="/static/echarts/echarts.min.js"></script>
+<script src="/static/layui/layui.js"></script>
+<script src="/static/mystyle/js/dateutils/dateutils.js"></script>
+<script th:inline="none">
+    layui.config({
+        version: '1584613945938' //为了更新 js 缓存，可忽略
+    });
+
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider','util'], function() {
+        var laydate = layui.laydate //日期
+            , laypage = layui.laypage //分页
+            , layer = layui.layer //弹层
+            , table = layui.table //表格
+            , form = layui.form //表单
+            , carousel = layui.carousel //轮播
+            , upload = layui.upload //上传
+            , element = layui.element //元素操作
+            , slider = layui.slider //滑块
+            , util = layui.util//引入util
+
+
+
+
+        //回到顶部
+        util.fixbar({
+            top:true
+            , css: { right: 0, bottom: 35 }
+            , bgcolor: '#505050 !important;display:block;'
+            ,showHeight:100
+            , click: function (type) {
+                if (type === 'top') {
+                    $('.layui-body').animate({//主要代码
+                        scrollTop: 0
+                    }, 200);
+                }
+            }
+        });
+
+        $("#fandanmaodian").show();
+        $("#diaodumaodian").show();
+        $("#drivermaodian").show();
+        $("#applymaodian").show();
+        $("#carmaodian").show();
+        $("#mainPage").show();
+
+
+        //查询总车辆
+        $.ajax({
+            type:'post',
+            url:'/repair/countNum',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                $("#allCar").text(data);
+            },
+            error:function () {
+                layer.alert("网络不佳，请稍后重试");
+            }
+        });
+        //查询有效车辆
+        $.ajax({
+            type:'post',
+            url:'/repair/countAlbleNums',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                $("#ableCar").text(data);
+            },
+            error:function () {
+                layer.alert("网络不佳，请稍后重试");
+            }
+        });
+        //查询总用户数
+        $.ajax({
+            type:'post',
+            url:'/merchants/countNum',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                $("#allUser").text(data);
+                $("#ordUser").text(data);
+            },
+            error:function () {
+                layer.alert("网络不佳，请稍后重试");
+            }
+        });
+        //查询普通用户数量
+        $.ajax({
+            type:'post',
+            url:'/repair/countNum',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                $("#ordUser").text(data);
+            },
+            error:function () {
+                layer.alert("网络不佳，请稍后重试");
+            }
+        });
+        //查询所有驾驶员
+        $.ajax({
+            type:'post',
+            url:'/merchantorder/countOrderNum',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                $("#allDriver").text(data);
+            },
+            error:function () {
+                layer.alert("网络不佳，请稍后重试");
+            }
+        });
+        //查询有效驾驶员
+        $.ajax({
+            type:'post',
+            url:'/merchantorder/countRwNum',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                $("#ableDriver").text(data);
+            },
+            error:function () {
+                layer.alert("网络不佳，请稍后重试");
+            }
+        });
+        //车辆品牌总数
+        $.ajax({
+            type:'post',
+            url:'/merchantorder/counthandling',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                $("#allCarModel").text(data);
+            },
+            error:function () {
+                layer.alert("网络不佳，请稍后重试");
+            }
+        });
+        //车辆分类总数
+        $.ajax({
+            type:'post',
+            url:'/merchantorder/countfinsihed',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                $("#allCartype").text(data);
+            },
+            error:function () {
+                layer.alert("网络不佳，请稍后重试");
+            }
+        });
+        //轮播
+        var ins = carousel.render({
+            elem: '#test1'
+            ,width: '100%' //设置容器宽度
+            ,arrow: 'always' //始终显示箭头
+            //,anim: 'updown' //切换动画方式
+        });
+
+
+
+        //时间-罚单-部门
+        var myChart8 = echarts.init(document.getElementById('numOfTicketTime'));
+        var colors = ['#d14a61', '#675bba'];
+        var legend = [];
+        var option = null;
+        //时间选择器初始化
+        var now = new Date();//当前时间
+        var before = Format.getBeforeDate(7);//7天前
+        var end_time = Format.dateFormat(before, 'YYYY-MM-DD 00:00:00');
+        var start_time = Format.dateFormat(now,"YYYY-MM-DD 23:59:59");
+        var ins1 = laydate.render({
+            elem:'#time'
+            ,type : 'datetime'
+            ,range: '~'
+            ,value:start_time+' ~ '+end_time
+            ,max : Format.dateFormat(new Date(), 'YYYY-MM-DD hh:mm:ss')
+            ,btns: ['clear', 'confirm']
+            ,change: function(value, date, endDate){
+                var d = value.split(' ~ ');
+                var s = new Date(d[0]);
+                var e = new Date(d[1]);
+                //计算两个时间间隔天数
+                var d=(e-s)/(1000*60*60*24);
+                if(d>30){
+                    ins1.hint('最多选择30天');
+                    $('span.laydate-btns-confirm').hide();
+                }else{
+                    $('span.laydate-btns-confirm').show();
+                    let departName = $('#departName').val();
+                    searchTicket(value,departName);
+                }
+            }
+        });
+        form.on('select(tdep)', function(data){
+            let time = $('#time').val();
+            searchTicket(time,data.value);
+        });
+
+        window.searchTicket = function(time,departName){
+            $.ajax({
+                type: 'get',
+                url: '/merchantorder/countByTime?time='+time,
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function (data) {
+                    let legend = [];
+                    let xdate = [];
+                    let ydate = [];
+                    for(var i=0;i<data.length;i++){
+                        xdate.push(data[i].time);
+                        ydate.push(data[i].count)
+                    }
+                    legend.push(departName);
+                    option = {
+                        color: colors,
+
+                        tooltip: {
+                            trigger: 'none',
+                            axisPointer: {
+                                type: 'cross'
+                            }
+                        },
+                        legend: {
+                            data:legend
+                        },
+                        grid: {
+                            top: 70,
+                            bottom: 50
+                        },
+                        xAxis: [
+                            {
+                                type: 'category',
+                                axisTick: {
+                                    alignWithLabel: true
+                                },
+                                axisLine: {
+                                    onZero: false,
+                                    lineStyle: {
+                                        color: colors[1]
+                                    }
+                                },
+                                axisPointer: {
+                                    label: {
+                                        formatter: function (params) {
+                                            return '订单量  ' + params.value
+                                                + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                                        }
+                                    }
+                                },
+                                data: xdate
+                            },
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: legend[0],
+                                type: 'line',
+                                smooth: true,
+                                data: ydate
+                            }
+                        ]
+                    };
+                    myChart8.setOption(option);
+                }
+            });
+        }
+
+
+        //搜索按钮点击事件
+        $("#searchTicket").on('click',function () {
+            //获取部门名称
+            let departName = $('#departName').val();
+            //获取时间选择器的时间 后端处理将时间分成开始时间和结束时间
+            let time = $('#time').val();
+            searchTicket(time,departName);
+        });
+
+        $(document).ready(function() {
+            //获取部门名称
+            let departName = $('#departName').val();
+            //获取时间选择器的时间 后端处理将时间分成开始时间和结束时间
+            let time = $('#time').val();
+            searchTicket(time,departName);
+        });
+
+        //按照部门统计借车次数
+        var myChart9 = echarts.init(document.getElementById('numOfBorrow'));
+        myChart9.showLoading();
+        $.ajax({
+            type: 'get',
+            url: '/merchantorder/numOfBorrow',
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (data2) {
+                // myChart7.hideLoading();
+                // //处理数据获取数据中次数最大的 使用es6中的Math.max()
+                var dataAxis = [];
+                var data = [];
+                var dataShadow = [];
+                for (let i = 0; i < data2.length; i++) {
+                    dataAxis.push(data2[i].type);
+                    data.push(data2[i].count);
+                }
+                for (let i = 0; i < data.length; i++) {
+                    dataShadow.push(Math.max(data[i]));
+                }
+                option = {
+                    title: {
+                        text: '订单类型',
+                        subtext: 'Department-BorrowCount'
+                    },
+                    xAxis: {
+                        data: dataAxis,
+                        axisLabel: {
+                            inside: true,
+                            textStyle: {
+                                color: '#fff'
+                            }
+                        },
+                        axisTick: {
+                            show: false
+                        },
+                        axisLine: {
+                            show: false
+                        },
+                        z: 10
+                    },
+                    yAxis: {
+                        axisLine: {
+                            show: false
+                        },
+                        axisTick: {
+                            show: false
+                        },
+                        axisLabel: {
+                            textStyle: {
+                                color: '#999'
+                            }
+                        }
+                    },
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        { // For shadow
+                            type: 'bar',
+                            itemStyle: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            barGap: '-100%',
+                            barCategoryGap: '40%',
+                            data: dataShadow,
+                            animation: false
+                        },
+                        {
+                            type: 'bar',
+                            itemStyle: {
+                                color: '#188df0'
+                            },
+                            emphasis: {
+                                itemStyle: {
+                                    color: new echarts.graphic.LinearGradient(
+                                        0, 0, 0, 1,
+                                        [
+                                            {offset: 0, color: '#2378f7'},
+                                            {offset: 0.7, color: '#2378f7'},
+                                            {offset: 1, color: '#83bff6'}
+                                        ]
+                                    )
+                                }
+                            },
+                            data: data
+                        }
+                    ]
+                };
+                myChart9.setOption(option)
+                myChart9.hideLoading();
+                var zoomSize = 6;
+                myChart9.on('click', function (params) {
+                    myChart9.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
+                        endValue: dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
+                    });
+                });
+            }
+        });
+
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name" : "Repairtype",
+  "originTableName" : "repairtype",
+  "comment" : null,
+  "fullColumn" : [ {
+    "name" : "repairtypeid",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "ktShortType" : "Int",
+    "custom" : false,
+    "ext" : { }
+  }, {
+    "name" : "repairtypename",
+    "comment" : null,
+    "type" : null,
+    "shortType" : null,
+    "ktShortType" : "String",
+    "custom" : false,
+    "ext" : { }
+  } ],
+  "pkColumn" : null,
+  "otherColumn" : null,
+  "savePackageName" : "com.zy",
+  "savePath" : "./src/main/java/com/zy",
+  "saveModelName" : "wiyebaoxiu"
+}

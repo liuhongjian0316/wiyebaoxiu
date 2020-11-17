@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>维修员信息</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+</head>
+<body>
+<div style="padding: 40px; background-color: #F2F2F2;max-height: 100%">
+
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <i class="layui-icon layui-icon-tabs">数据列表</i>
+        </div>
+    </div>
+    <div class="layui-card">
+        <table class="layui-hide" id="demo" lay-filter="test"></table>
+    </div>
+</div>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">查看详情</a>
+    <a class="layui-btn layui-btn-xs layui-bg-blue" id="dispach" lay-event="dispach">派遣维修员</a>
+
+</script>
+<script type="text/html" id="bDemo">
+
+    <a class="layui-btn layui-btn-xs" lay-event="edit2">选择</a>
+</script>
+
+
+<script type="text/html" id="titleTpl3">
+    {{#  if(d.state == 1){ }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs">订单待处理</a>
+    {{#  } else if(d.state == 2){ }}
+    <a class="layui-btn layui-btn-xs">已派遣维修人员</a>
+    {{#  } else if(d.state == 3){ }}
+    <a class="layui-btn layui-btn-xs">正在维修</a>
+    {{#  }   }}
+</script>
+<script type="text/html" id="titleTpl4">
+    {{#  if(d.sex == 1){ }}
+    <a>男</a>
+    {{#  } else if(d.sex == 0){ }}
+    <a>女</a>
+    {{#  }   }}
+</script>
+<script type="text/html" id="titleTpl5">
+    {{#  if(d.state == 1){ }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs">空闲</a>
+    {{#  } else if(d.state == 0){ }}
+    <a class="layui-btn layui-btn-xs">外出</a>
+    {{#  }   }}
+</script>
+<script type="text/html" id="titleTpl6">
+    {{#  if(d.workstate == 0){ }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs">普通报修</a>
+    {{#  } else if(d.workstate == 1){ }}
+    <a class="layui-btn layui-btn-xs">悬赏报修</a>
+    {{#  }   }}
+</script>
+<script src="/static/jquery/jquery-3.4.1.min.js"></script>
+<script src="/static/layui/layui.js"></script>
+<script th:inline="none">
+    layui.config({
+        version: '1584613945938' //为了更新 js 缓存，可忽略
+    });
+
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider'], function(){
+        var laydate = layui.laydate //日期
+            ,laypage = layui.laypage //分页
+            ,layer = layui.layer //弹层
+            ,table = layui.table //表格
+            ,form = layui.form //表单
+            ,carousel = layui.carousel //轮播
+            ,upload = layui.upload //上传
+            ,element = layui.element //元素操作
+            ,slider = layui.slider //滑块
+        var workorderid = null;
+        //下拉框初始化(类型)
+        $.ajax({
+            url: '/managerss/allWorktype.do',
+            dataType: 'json',
+            type: 'post',
+            contentType:'application/json',
+            success: function (data) {
+                $.each(data, function (index, item) {
+                    $('#worktypeid').append(new Option(item.workname,item.worktypeid));// 下拉菜单里添加元素
+                });
+                layui.form.render("select");
+            }
+        })
+        table.render({
+            elem: '#demo'
+            ,height: 420
+            ,url: '/managerss/applicationIng.do' //数据接口
+            ,title: '待处理'
+            ,page: true //开启分页
+            ,totalRow: true //开启合计行
+            ,method:'post'
+            ,cols: [[ //表头
+                {field: 'work_order_id', title: 'ID', align:'center', width:90, fixed:'left'}
+                ,{field: 'apply_name', title: '申请人', align:'center', width:170}
+                ,{field: 'tel', title: '联系电话', align:'center', width:170}
+                ,{field: 'shop_name', title: '商店名称及具体地点', align:'center', width:170}
+                ,{field: 'reserve_time', title: '预约时间', align:'center', width:170}
+                ,{field: 'workname', title: '维修种类', align:'center', width: 170, sort: true}
+                ,{field: 'workstate', title: '报修类型', align:'center', width: 170, sort: true,templet: '#titleTpl6'}
+                ,{field: 'state', title: '状态', align:'center', width: 170,templet: '#titleTpl3'}
+                ,{fixed: 'right', title:'操作',width: 200, align:'center', toolbar:'#barDemo'}
+            ]]
+        });
+
+        //执行一个 table 实例
+        table.render({
+            elem: '#dispats'
+            ,height: 420
+            ,url: '/managerss/allRpairState.do' //数据接口
+            ,title: '维修员'
+            ,page: true //开启分页
+            ,totalRow: true //开启合计行
+            ,method:'post'
+            ,cols: [[ //表头
+                {field: 'repairid', title: 'ID', align:'center', width:60, sort: true, fixed: 'left'}
+                ,{field: 'repairname', title: '维修员姓名', align:'center', width:170}
+                ,{field: 'tel', title: '联系电话', align:'center', width:170}
+                ,{field: 'sex', title: '性别', align:'center', width:170,templet: '#titleTpl4'}
+                ,{field: 'departname', title: '部门', align:'center', width:170}
+                ,{field: 'repairtypename', title: '擅长维修种类', align:'center', width: 170, sort: true}
+                ,{field: 'state', title: '状态', align:'center', width: 170,templet: '#titleTpl5'}
+                ,{fixed: 'right', title:'操作',width: 195, align:'center', toolbar:'#bDemo'}
+            ]]
+        });
+
+        table.on('tool(test)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data //获得当前行数据
+                ,layEvent = obj.event; //获得 lay-event 对应的值
+            if(layEvent === 'edit') {
+                //修改模态框赋值
+                $.ajax({
+                    type: 'post',
+                    url: '/managerss/findMtByid.do/' + data.work_order_id,
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+
+                        //赋初始值
+                        form.val("updateForm", {
+                            "applyName": data[0].apply_name
+                            , "worktypeid": data[0].worktypeid
+                            , "shopName": data[0].shop_name
+                            , "tel": data[0].tel
+                            , "reserveTime": data[0].reserve_time
+                        });
+
+                    },
+                    error: function () {
+                        layer.alert("网络不佳，数据获取不到");
+                    }
+                });
+                //打开查看详情模态框
+                layer.open({
+                    type: 1,
+                    title: '编辑信息', //不显示标题栏
+                    closeBtn: 2,
+                    offset: '10px',
+                    area: ['820px','585px'],
+                    shade: 0.8,
+                    id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
+                    btn: ['保存','关闭'],
+                    btnAlign: 'r',
+                    moveType: 1, //拖拽模式，0或者1
+                    content:$('.updatePage'),
+                    yes: function (index, layero) {
+
+                    }
+                });
+            }else if(layEvent === 'dispach'){
+                workorderid = data.work_order_id;
+                //打开派遣维修员模态框
+                layer.open({
+                    type: 1,
+                    title: '派遣维修员', //不显示标题栏
+                    closeBtn: 2,
+                    offset: '10px',
+                    area: ['826px', '550px'],
+                    shade: 0.8,
+                    id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
+                    btn: ['确定', '关闭'],
+                    btnAlign: 'r',
+                    moveType: 1, //拖拽模式，0或者1
+                    content: $('.dispatchPage'),
+                    btn2: function (index, layero) {
+                        //取消
+                    }
+                });
+            }
+        });
+
+        //监听行工具事件
+        table.on('tool(test2)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data //获得当前行数据
+                ,layEvent = obj.event; //获得 lay-event 对应的值
+            if(layEvent == 'edit2'){
+                layer.confirm('确定选择当前维修员么', function(index){
+                    layer.close(index);
+                    var loginLoadIndex = layer.load(2);
+                    //向服务端发送删除指令
+                    $.ajax({
+                        type:'post',
+                        url:'/merchantorder/managerYes.do/'+workorderid+'/'+data.repairid,
+                        contentType:'application/json',
+                        dataType:'json',
+                        success:function (data) {
+                            if (data.status == "200") {
+                                table.reload('dispats', {
+                                    url: '/managerss/allRpairState.do'
+                                    ,where: {} //设定异步数据接口的额外参数
+                                });
+                                table.reload('demo', {
+                                    url: '/managerss/applicationIng.do'
+                                    ,where: {} //设定异步数据接口的额外参数
+                                });
+                                layer.closeAll();
+                                layer.msg('派遣成功');
+                            }else{
+                                layer.closeAll();
+                                layer.close(loginLoadIndex);
+                                layer.alert("派遣失败");
+                            }
+                        },
+                        error:function () {
+                            layer.alert("网络不佳，数据获取不到");
+                            layer.closeAll();
+                        }
+                    });
+                });
+            }
+        });
+
+
+        //自定义验证规则
+        form.verify({
+            checkTel:function () {
+                var tel = $('#tel').val();
+                var flag = false;
+                $.ajax({
+                    type:'get',
+                    url:'/repair/checkTel.do',
+                    data:{'tel':tel},
+                    dataType:'json',
+                    async: false,
+                    contentType:'application/json',
+                    success:function (data) {
+                        flag = data.data;
+                        if (data.data == true){
+                            $("#telSpan").html("电话重复");
+                            $("#telSpan").css({color:"red"});
+                        }else{
+                            $("#telSpan").html("电话可用");
+                            $("#telSpan").css({color:"green"});
+                        }
+                    }
+                });
+                if(flag){
+                    return "电话已存在";
+                }
+            },
+            checkUM:function () {
+                var username = $('#username').val();
+                var flag = false;
+                $.ajax({
+                    type:'get',
+                    url:'/repair/checkUsername.do',
+                    data:{'username':username},
+                    dataType:'json',
+                    async: false,
+                    contentType:'application/json',
+                    success:function (data) {
+                        flag = data.data;
+                        if (data.data == true){
+                            $("#usernameSpan").html("账号已存在");
+                            $("#usernameSpan").css({color:"red"});
+                        }else{
+                            $("#usernameSpan").html("账号号可用");
+                            $("#usernameSpan").css({color:"green"});
+                        }
+                    }
+                });
+                if(flag){
+                    return "账号已存在";
+                }
+            },
+            tel:[
+                /^1[3456789]\d{9}$/,'请输入正确的手机号'
+            ],
+            userName:[
+                /^[\u4E00-\u9FA5A-Za-z]+$/,'只能输入中文或英文'
+            ],
+            Name:[
+                /^[\u4e00-\u9fa5]{0,}$/,'中文'
+            ],
+            userAccount:[
+                /^[a-zA-Z0-9_-]{4,16}$/,'4到16位（字母，数字，下划线，减号）'
+            ],
+            pwd:[
+                /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/,'最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符  '
+            ]
+        });
+
+        //搜索
+        $("#search").on('click',function (){
+            //搜索条件
+            let all = $("#all").val();
+            table.reload('demo', {
+                url:'/repair/selectallrepair'
+                , where: {
+                    'all':all,
+                }
+            });
+        })
+
+    });
+</script>
+</body>
+<div class="dispatchPage" style="display: none">
+    <div class="layui-card">
+        <table class="layui-hide" id="dispats" lay-filter="test2"></table>
+    </div>
+</div>
+<!--修改模态框-->
+<div class="updatePage" style="display: none">
+    <form class="layui-form" lay-filter="updateForm" >
+        <div class="layui-form-item">
+            <label class="layui-form-label">报修人</label>
+            <div class="layui-input-block">
+                <input type="text" name="applyName" required  readonly lay-verify="=required" placeholder="请输入申请人" autocomplete="off" class="layui-input" id="applyName">
+                <span id="applyNameSpan"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">报修类型</label>
+            <div class="layui-input-block">
+                <select disabled="disabled" name="worktypeid" id="worktypeid" lay-verify="required">
+                    <option value="">请选择</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">商户名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="shopName" required   lay-verify="=required" placeholder="请输入商户名称" autocomplete="off" readonly class="layui-input" id="shopName">
+                <span id="shopNameSpan"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">联系电话</label>
+            <div class="layui-input-block">
+                <input type="text" name="tel" required   lay-verify="=required" placeholder="联系电话" autocomplete="off" class="layui-input" id="tel" readonly>
+                <span id="telSpan"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">预约时间</label>
+            <div class="layui-input-block">
+                <input type="text" name="reserveTime" readonly required  lay-verify="=required" placeholder="请输入预约时间" autocomplete="off" class="layui-input" id="reserveTime">
+                <span id="reservetimeSpan"></span>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<!--end-->
+</html>
