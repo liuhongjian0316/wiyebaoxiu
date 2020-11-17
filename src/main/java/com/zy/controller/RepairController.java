@@ -270,4 +270,51 @@ public class RepairController {
         }
             return JSONResult.errorMsg("网络不佳请稍后重试");
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/repairFindCd.do", method = RequestMethod.POST)
+    public LayuiPageResult repairFindCd(@RequestParam("page") Integer page,
+                                        @RequestParam("limit") Integer limit) {
+
+
+        IPage<Map<String, Object>> mapIPage = repairService.repairFindCd(page, limit);
+        return new LayuiPageResult(mapIPage.getTotal(), mapIPage.getRecords());
+
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/repairCdOk.do/{id}",method = RequestMethod.POST)
+    public JSONResult repairCdOk(@PathVariable("id") int id,HttpServletRequest request){
+        //获取session
+        HttpSession session   =   request.getSession();
+        Map<String, Object> login = (Map<String, Object>)session.getAttribute("login");
+        String repairid = login.get("repairid").toString();
+
+        int i = repairService.repairOkCd(id);
+        int i1 = repairService.updateRepairState(Integer.valueOf(repairid));
+        if(i>0 && i1>0){
+            return JSONResult.ok();
+        }
+            return JSONResult.errorMsg("网络不佳,请稍后重试");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/findCdType.do/{id}",method = RequestMethod.POST)
+    public JSONResult findCdType(@PathVariable("id") int id,HttpServletRequest request){
+
+        List<Map<String, Object>> cdType = repairService.findCdType(id);
+
+        if(cdType.size()>0){
+            int i = repairService.repairNoCds(id);
+            if (i>0){
+                return JSONResult.ok();
+            }
+        }else{
+            int i1 = repairService.repairNoCd(id);
+            if(i1>0){
+                return JSONResult.ok();
+            }
+        }
+        return JSONResult.errorMsg("网络不佳,请稍后重试");
+    }
 }

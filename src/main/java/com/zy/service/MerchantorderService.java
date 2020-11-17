@@ -113,4 +113,10 @@ public interface MerchantorderService {
     int counthandling();
     int countfinsihed();
 
+    /**
+     * 抢单前查询维修员是否有其他订单
+     * @param repairid
+     * @return
+     */
+    public List<Map<String,Object>> repairQdFindState(int repairid);
 }

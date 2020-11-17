@@ -160,4 +160,49 @@ public interface RepairDao extends BaseMapper<Repair> {
     @Update("update repair set state = 1 " +
             "where repairid = #{repairid}")
     public int jingliOkUpdateRepairStateByid(@Param("repairid") int repairid);
+
+    /**
+     *维修员查看撤单申请
+     * @param page
+     * @return
+     */
+    @Select("SELECT m.*,w.workname FROM merchantorder m " +
+            "INNER JOIN woktype w ON w.worktypeid = m.worktypeid " +
+            "WHERE  m.state = 7" )
+    public IPage<Map<String,Object>> repairFindCd(Page<Map<String,Object>> page);
+
+    /**
+     * 同意撤单更改状态流程结束
+     * @param id
+     * @return
+     */
+    @Update("update merchantorder set state = 11 " +
+            "where work_order_id = #{id}")
+    public int repairOkCd(@Param("id") int id);
+
+    /**
+     * 同意撤单后状态改为空闲
+     * @param repairid
+     * @return
+     */
+    @Update("update repair set state = 1 " +
+            "where repairid = #{repairid}")
+    public int updateRepairState(@Param("repairid") int repairid);
+
+    /**
+     * 查看该订单类型
+     * @param id
+     * @return
+     */
+   @Select("select * from merchantorder where work_order_id = #{id} and workstate = 1")
+    public List<Map<String,Object>> findCdType(@Param("id") int id);
+
+   @Update("update merchantorder set state = 3 " +
+           "where work_order_id = #{id}")
+   public int repairNoCd(@Param("id") int id);
+
+    @Update("update merchantorder set state = 9 " +
+            "where work_order_id = #{id}")
+    public int repairNoCds(@Param("id") int id);
+
 }

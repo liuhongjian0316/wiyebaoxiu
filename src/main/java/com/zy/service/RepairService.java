@@ -6,6 +6,8 @@ import com.zy.entity.Depart;
 import com.zy.entity.Repair;
 import com.zy.entity.Repairtype;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 import java.util.Map;
@@ -190,4 +192,38 @@ public interface RepairService {
      * @return
      */
     public int jingliOkUpdateRepairStateByid(int id);
+
+    /**
+     *维修员查看撤单申请
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    public IPage<Map<String,Object>> repairFindCd(Integer pageNum,Integer pageSize);
+
+    /**
+     * 同意撤单更改状态流程结束
+     * @param id
+     * @return
+     */
+    public int repairOkCd(int id);
+
+    /**
+     * 同意撤单后状态改为空闲
+     * @param repairid
+     * @return
+     */
+    public int updateRepairState(int repairid);
+
+    /**
+     * 查看该订单类型
+     * @param id
+     * @return
+     */
+    public List<Map<String,Object>> findCdType( int id);
+
+    public int repairNoCd(int id);
+
+
+    public int repairNoCds(int id);
 }

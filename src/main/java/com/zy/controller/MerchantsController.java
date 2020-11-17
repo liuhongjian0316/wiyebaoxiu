@@ -33,50 +33,51 @@ public class MerchantsController {
     private MerchantsService merchantsService;
 
 
-
     @ResponseBody
     @RequestMapping("/login")
-    public JSONResult Login(@RequestBody Merchants merchants,HttpServletRequest request){
-        Map<String, Object> login = merchantsService.login(merchants.getUsername(),merchants.getPwd());
+    public JSONResult Login(@RequestBody Merchants merchants, HttpServletRequest request) {
+        Map<String, Object> login = merchantsService.login(merchants.getUsername(), merchants.getPwd());
         HttpSession session = request.getSession();
-        if(!login.isEmpty()){
-            session.setAttribute("login",login);
+        if (!login.isEmpty()) {
+            session.setAttribute("login", login);
             return JSONResult.ok(login);
 
         }
-            return JSONResult.errorMsg("账号或密码错误");
+        return JSONResult.errorMsg("账号或密码错误");
 
 
     }
 
     /**
      * 商户分页
+     *
      * @param page
      * @param limit
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/page" , method = RequestMethod.GET)
-    public LayuiPageResult queryPage(@RequestParam("page")Integer page,
-                                     @RequestParam("limit")Integer limit,
-                                     @RequestParam("all") String all){
+    @RequestMapping(value = "/page", method = RequestMethod.GET)
+    public LayuiPageResult queryPage(@RequestParam("page") Integer page,
+                                     @RequestParam("limit") Integer limit,
+                                     @RequestParam("all") String all) {
         IPage<Map<String, Object>> mapIPage = merchantsService.queryPage(page, limit, all);
         /**
          * @parm1 总条数
          * @parm2 List<Merchants> 数据
          */
-        return new LayuiPageResult(mapIPage.getTotal(),mapIPage.getRecords());
+        return new LayuiPageResult(mapIPage.getTotal(), mapIPage.getRecords());
     }
 
     /**
      * 增加商户
+     *
      * @param merchants
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/insert" , method = RequestMethod.POST)
-    public JSONResult queryPage(@RequestBody Merchants merchants){
-        if(merchantsService.addMerchants(merchants)){
+    @RequestMapping(value = "/insert", method = RequestMethod.POST)
+    public JSONResult queryPage(@RequestBody Merchants merchants) {
+        if (merchantsService.addMerchants(merchants)) {
             return JSONResult.ok();
         }
         return JSONResult.errorMsg("操作失败");
@@ -121,25 +122,29 @@ public class MerchantsController {
         }
         return JSONResult.ok(false);
     }
+
     /**
      * 删除商户
+     *
      * @param id
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/delete/{id}" , method = RequestMethod.GET)
-    public JSONResult delete(@PathVariable("id") int id){
-        if(merchantsService.deleteById(id)){
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
+    public JSONResult delete(@PathVariable("id") int id) {
+        if (merchantsService.deleteById(id)) {
             return JSONResult.ok();
         }
         return JSONResult.errorMsg("操作失败");
     }
+
     @ResponseBody
     @RequestMapping(value = "/findMtById.do/{id}", method = RequestMethod.POST)
     public List<Map<String, Object>> findMtById(@PathVariable("id") int id) {
         List<Map<String, Object>> mtById = merchantsService.findMtById(id);
         return mtById;
     }
+
     @ResponseBody
     @RequestMapping(value = "/updateMt.do", method = RequestMethod.POST)
     public JSONResult updateMt(@RequestBody Merchants merchants) {
@@ -155,43 +160,26 @@ public class MerchantsController {
     public int countNum() {
         return merchantsService.countNum();
     }
-    @RequestMapping(value = "/cdFind.do/{id}",method = RequestMethod.POST)
-    public JSONResult cdFind(@PathVariable("id") int id){
+
+    @ResponseBody
+    @RequestMapping(value = "/cdFind.do/{id}", method = RequestMethod.POST)
+    public JSONResult cdFind(@PathVariable("id") int id) {
         //标记
         List<Map<String, Object>> maps = merchantsService.cdFind(id);
-        if(maps.size()>0){
+        System.err.println(maps);
+        if (maps.size() > 0) {
             int i1 = merchantsService.mtCdNoToRepair(id);
-            if(i1 > 0){
+            if (i1 > 0) {
                 return JSONResult.ok();
-            }else {
-                return JSONResult.errorMsg("操作失败");
             }
-        }else{
+        } else {
             int i2 = merchantsService.mtCdOk(id);
-            if(i2>0){
-                return JSONResult.ok();
-            }else{
-                return JSONResult.errorMsg("操作失败");
+            if (i2 > 0) {
+                return JSONResult.errorMsg("");
             }
+
         }
+        return null;
     }
 
-    @RequestMapping(value = "/mtCdOk.do/{id}",method = RequestMethod.POST)
-    public JSONResult mtCdOk(@PathVariable("id") int id){
-
-        int i = merchantsService.mtCdOk(id);
-        if(i>0){
-            return JSONResult.ok();
-        }
-        return JSONResult.errorMsg("网络不佳,稍后重试");
-    }
-    @RequestMapping(value = "/mtToRepair.do/{id}",method = RequestMethod.POST)
-    public JSONResult mtToRepair(@PathVariable("id") int id){
-
-        int i = merchantsService.mtCdNoToRepair(id);
-        if(i==0){
-            return JSONResult.ok();
-        }
-        return JSONResult.errorMsg("网络不佳,稍后重试");
-    }
 }

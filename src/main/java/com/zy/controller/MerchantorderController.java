@@ -165,11 +165,15 @@ public class MerchantorderController {
         HttpSession session   =   request.getSession();
         Map<String, Object> login = (Map<String, Object>)session.getAttribute("login");
         Integer repairid = (Integer) login.get("repairid");
-        if( merchantorderService.mtorderXs(repairid,id)>0 &&
-                merchantorderService.repairUpdateXsState(repairid)>0){
-            return JSONResult.ok();
-        }
+        List<Map<String, Object>> maps = merchantorderService.repairQdFindState(repairid);
+        if(maps.size()>0){
+            if( merchantorderService.mtorderXs(repairid,id)>0 &&
+                    merchantorderService.repairUpdateXsState(repairid)>0){
+                return JSONResult.ok();
+            }
             return JSONResult.errorMsg("服务器故障,请联系管理员");
+        }
+        return JSONResult.errorMsg("服务器故障,请联系管理员");
     }
 
     @RequestMapping(value = "/countByTime",method = RequestMethod.GET)

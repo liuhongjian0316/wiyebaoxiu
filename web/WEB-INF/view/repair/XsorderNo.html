@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>抢单信息</title>
+    <title>维修员信息</title>
     <link rel="stylesheet" href="/static/layui/css/layui.css">
 </head>
 <body>
@@ -19,13 +19,14 @@
 <script type="text/html" id="barDemo">
 
     <a class="layui-btn layui-btn-xs" lay-event="edit">查看详情</a>
-    <a class="layui-btn layui-btn-xs layui-bg-blue " lay-event="edit1">抢单</a>
+    <a class="layui-btn layui-btn-xs layui-bg-blue " lay-event="edit1">同意撤单</a>
+    <a class="layui-btn layui-btn-xs layui-bg-red " lay-event="edit2">拒绝撤单</a>
 
 </script>
 
 <script type="text/html" id="titleTpl3">
-    {{#  if(d.state == 1){ }}
-    <a class="layui-btn layui-btn-danger layui-btn-xs">订单处理中</a>
+    {{#  if(d.state == 7){ }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs">商户申请撤单</a>
     {{#  } else if(d.state == 2 || d.state == 8){ }}
     <a class="layui-btn layui-btn-xs">处理中</a>
     {{#  } else if(d.state == 3){ }}
@@ -75,7 +76,7 @@
         table.render({
             elem: '#demo'
             ,height: 420
-            ,url: '/repair/repairFindXs.do' //数据接口
+            ,url: '/repair/repairFindCd.do' //数据接口
             ,title: '已提交的申请表'
             ,page: true //开启分页
             ,totalRow: true //开启合计行
@@ -89,7 +90,7 @@
                 ,{field: 'workname', title: '维修种类', align:'center', width: 170, sort: true}
                 ,{field: 'workstate', title: '报修类型', align:'center', width: 170, sort: true,templet: '#titleTpl4'}
                 ,{field: 'state', title: '状态', align:'center', width: 170,templet: '#titleTpl3'}
-                ,{fixed: 'right', title:'操作',width: 195, align:'center', toolbar: '#barDemo'}
+                ,{fixed: 'right', title:'操作',width: 235, align:'center', toolbar: '#barDemo'}
             ]]
         });
 
@@ -98,28 +99,29 @@
             var data = obj.data //获得当前行数据
                 ,layEvent = obj.event; //获得 lay-event 对应的值
             if(layEvent === 'edit1'){
-                layer.confirm('确定抢该订单么', function(index){
+                layer.confirm('确定同意撤单么', function(index){
+                    obj.del(); //删除对应行（tr）的DOM结构
                     layer.close(index);
                     var loginLoadIndex = layer.load(2);
                     //向服务端发送删除指令
                     $.ajax({
                         type:'post',
-                        url:'/merchantorder/robOrder.do/'+data.work_order_id,
+                        url:'/repair/repairCdOk.do/'+data.work_order_id,
                         contentType:'application/json',
                         dataType:'json',
                         success:function (data) {
                             if (data.status == "200") {
 
                                 table.reload('demo', {
-                                    url: '/repair/repairFindXs.do'
+                                    url: '/repair/repairFindCd.do'
                                     ,where: {} //设定异步数据接口的额外参数
                                 });
                                 layer.closeAll();
-                                layer.msg('抢单成功');
+                                layer.msg('操作成功');
                             }else{
                                 layer.closeAll();
                                 layer.close(loginLoadIndex);
-                                layer.alert("该维修员当前有订单处理,暂时不能抢单");
+                                layer.alert("操作失败,请联系经理处理");
                             }
                         },
                         error:function () {
@@ -208,84 +210,39 @@
                     }
                 });
 
+            }else if(layEvent === 'edit2'){
+                layer.confirm('确定拒绝撤单申请么?', function(index){
+                    obj.del(); //删除对应行（tr）的DOM结构
+                    layer.close(index);
+                    var loginLoadIndex = layer.load(2);
+                    //向服务端发送删除指令
+                    $.ajax({
+                        type:'post',
+                        url:'/repair/findCdType.do/'+data.work_order_id,
+                        contentType:'application/json',
+                        dataType:'json',
+                        success:function (data2) {
+                            if (data2.status == "200") {
+                                table.reload('demo', {
+                                    url: '/repair/repairDispatch.do'
+                                    ,where: {} //设定异步数据接口的额外参数
+                                });
+                                layer.closeAll();
+                                layer.msg('拒绝成功');
+                            }else{
+                                layer.closeAll();
+                                layer.close(loginLoadIndex);
+                                layer.alert("操作失败,请联系经理处理");
+                            }
+                        },
+                        error:function () {
+                            layer.alert("网络不佳，数据获取不到");
+                            layer.closeAll();
+                        }
+                    });
+                });
             }
         });
-
-        //添加按钮点击
-        $(document).on('click','#addBtn',function(){
-            //打开添加模态框
-            layer.open({
-                type: 1,
-                title: '添加信息', //不显示标题栏
-                closeBtn: 2,
-                offset: '10px',
-                area: ['826px','600px'],
-                shade: 0.8,
-                id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
-                btn: ['保存', '重置','取消'],
-                btnAlign: 'r',
-                moveType: 1, //拖拽模式，0或者1
-                content:$('.addPage'),
-                yes: function (index, layero) {
-                    //触发提交按钮
-                    layero.find('form').find('a[lay-submit]').click();
-                    //添加按钮触发
-                    form.on('submit(AddformDemo)', function(data){
-                        var loginLoadIndex = layer.load(2);
-                        $.ajax({
-                            type:'post',
-                            url:'',
-                            dataType:'json',
-                            data:JSON.stringify(data.field),
-                            contentType:'application/json',
-                            success:function (data) {
-                                layer.close(loginLoadIndex);
-                                if (data.status == "200"){
-                                    layer.msg('添加成功');
-                                    table.reload('demo', {
-                                        url: '/repair/selectallrepair?all='
-                                        ,where: {} //设定异步数据接口的额外参数
-                                    });
-                                    layer.close(index);
-
-                                }else{
-                                    layer.close(loginLoadIndex);
-                                    layer.alert("添加失败");
-                                    $('#loginBtn').val("立即提交");
-                                }
-                            },
-                            error:function () {
-                                layer.close(loginLoadIndex);
-                                layer.alert("网络不佳，请稍后重试");
-                                $('#formDemo').val("正在添加...");
-                            }
-                        });
-                    });
-                },
-                btn2:function (index,layero) {
-                    //触发重置按钮
-                    layero.find('form').find('button').click();
-
-                    return false;
-                },
-                btn3:function (index,layero) {
-                    //取消
-                }
-            });
-        })
-
-        //搜索
-        $("#search").on('click',function (){
-            //搜索条件
-            let all = $("#all").val();
-            table.reload('demo', {
-                url:'/repair/selectallrepair'
-                , where: {
-                    'all':all,
-                }
-            });
-        })
-
     });
 </script>
 </body>
@@ -336,6 +293,21 @@
         </div>
     </form>
 </div>
-
+<div class="addPage" style="display: none">
+    <form class="layui-form"  >
+        <div class="layui-form-item">
+            <label class="layui-form-label">拒单原因</label>
+            <div class="layui-input-block">
+                <textarea name="cause" required lay-verify="required" placeholder="请输入拒单原因" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block" style="display: none">
+                <a class="layui-btn" lay-submit lay-filter="AddformDemo" style="display: none">立即提交</a>
+                <button type="reset" class="layui-btn layui-btn-primary" style="display: none" >重置</button>
+            </div>
+        </div>
+    </form>
+</div>
 <!--end-->
 </html>
