@@ -34,7 +34,7 @@ public interface MerchantorderDao extends BaseMapper<Merchantorder> {
      */
     @Select("SELECT m.*,w.workname FROM merchantorder m " +
             "INNER JOIN woktype w ON w.worktypeid = m.worktypeid " +
-            "WHERE  m.merchantid = #{id} and( m.state = 1 or m.state = 2 OR m.state = 3 or m.state = 8)   " +
+            "WHERE  m.merchantid = #{id} and( m.state = 1 or m.state = 2 OR m.state = 3 or m.state = 8 or m.state = 9)   " +
             "ORDER BY m.work_order_id DESC")
     public IPage<Map<String,Object>> repairIng(Page<Map<String,Object>> page,@Param("id") String id);
 
@@ -106,4 +106,12 @@ public interface MerchantorderDao extends BaseMapper<Merchantorder> {
      */
     @Select("select workstate as type ,count(*) count from merchantorder GROUP BY workstate ")
     public List<Map<String,Object>> selByType();
+
+    /**
+     * 抢单前查询维修员是否有别的订单
+     * @param repairid
+     * @return
+     */
+    @Select("select * from repair where repairid = #{repairid} and state = 1")
+    public List<Map<String,Object>> repairQdFindState(@Param("repairid") int repairid);
 }

@@ -121,5 +121,10 @@ public class MerchantorderServiceImpl implements MerchantorderService {
         return merchantorderDao.selectCount(wrapper);
     }
 
+    @Override
+    public List<Map<String, Object>> repairQdFindState(int repairid) {
+        return merchantorderDao.repairQdFindState(repairid);
+    }
+
 
 }

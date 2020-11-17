@@ -223,5 +223,35 @@ public class RepairServiceImpl implements RepairService {
         return repairDao.countByType();
     }
 
+    @Override
+    public IPage<Map<String, Object>> repairFindCd(Integer pageNum, Integer pageSize) {
+        return repairDao.repairFindCd(new Page<>(pageNum,pageSize));
+    }
+
+    @Override
+    public int repairOkCd(int id) {
+        return repairDao.repairOkCd(id);
+    }
+
+    @Override
+    public int updateRepairState(int repairid) {
+        return repairDao.updateRepairState(repairid);
+    }
+
+    @Override
+    public List<Map<String, Object>> findCdType(int id) {
+        return repairDao.findCdType(id);
+    }
+
+    @Override
+    public int repairNoCd(int id) {
+        return repairDao.repairNoCd(id);
+    }
+
+    @Override
+    public int repairNoCds(int id) {
+        return repairDao.repairNoCds(id);
+    }
+
 
 }

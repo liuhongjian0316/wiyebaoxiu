@@ -120,8 +120,14 @@ public class BackController {
         return "/superadmin/console";
     }
 
+
     @RequestMapping(value= "/jingli/RepairNoFind")
     public String RepairNoFind(){
         return "/jingli/RepairNoFind";
+    }
+
+    @RequestMapping(value= "/repair/XsorderNo")
+    public String XsorderNo(){
+        return "/repair/XsorderNo";
     }
 }

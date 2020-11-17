@@ -51,7 +51,7 @@
     <a class="layui-btn layui-btn-danger layui-btn-xs">订单处理中</a>
     {{#  } else if(d.state == 2){ }}
     <a class="layui-btn layui-btn-xs">已派遣维修人员</a>
-    {{#  } else if(d.state == 3){ }}
+    {{#  } else if(d.state == 3 || d.state == 9 ){ }}
     <a class="layui-btn layui-btn-xs">正在维修</a>
     {{#  }   }}
 </script>
@@ -146,6 +146,7 @@
                                 });
                                 layer.closeAll();
                                 layer.msg('撤单成功');
+
                             }
                         },
                         error:function () {
