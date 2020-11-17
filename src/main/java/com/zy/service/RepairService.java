@@ -190,4 +190,10 @@ public interface RepairService {
      * @return
      */
     public int jingliOkUpdateRepairStateByid(int id);
+
+    /**
+     * 管理员统计 按类型统计维修员人数
+     * @return
+     */
+    List<Map<String,Object>> countByType();
 }

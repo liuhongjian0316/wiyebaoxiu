@@ -218,5 +218,10 @@ public class RepairServiceImpl implements RepairService {
         return repairDao.jingliOkUpdateRepairStateByid(id);
     }
 
+    @Override
+    public List<Map<String, Object>> countByType() {
+        return repairDao.countByType();
+    }
+
 
 }

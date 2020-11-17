@@ -160,4 +160,11 @@ public interface RepairDao extends BaseMapper<Repair> {
     @Update("update repair set state = 1 " +
             "where repairid = #{repairid}")
     public int jingliOkUpdateRepairStateByid(@Param("repairid") int repairid);
+
+    /**
+     * 管理员按类型统计维修员人数
+     * @return
+     */
+    @Select("select rt.repairtypename as type, count(*) as count from repair r, repairtype rt where r.typeid = rt.repairtypeid GROUP BY r.typeid")
+    List<Map<String,Object>> countByType();
 }
