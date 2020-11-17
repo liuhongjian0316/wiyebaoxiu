@@ -1,6 +1,7 @@
 package com.zy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zy.entity.Merchants;
@@ -35,5 +36,17 @@ public class RoleServiceImpl implements RoleService {
     public List<Role> allList() {
         QueryWrapper<Role> wrapper = new QueryWrapper<>();
         return roleDao.selectList(wrapper);
+    }
+
+    @Override
+    public boolean addRole(Role role) {
+        return roleDao.insert(role)>0;
+    }
+
+    @Override
+    public boolean delRoleById(Integer id) {
+        UpdateWrapper<Role> wrapper = new UpdateWrapper<>();
+        wrapper.eq("roleid",id);
+        return roleDao.delete(wrapper)>0;
     }
 }

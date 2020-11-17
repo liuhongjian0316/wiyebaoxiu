@@ -12,8 +12,31 @@ import java.util.List;
  */
 public interface RoleService {
 
+    /**
+     * 分页
+     * @param offset
+     * @param limit
+     * @return
+     */
     IPage<Role> queryPage(Integer offset,Integer limit);
 
+    /**
+     * 角色列表
+     * @return
+     */
     List<Role> allList();
 
+    /**
+     * 添加角色
+     * @param role
+     * @return
+     */
+    boolean addRole(Role role);
+
+    /**
+     * 根据id删除角色
+     * @param id
+     * @return
+     */
+    boolean delRoleById(Integer id);
 }
