@@ -6,6 +6,7 @@ import com.zy.entity.Depart;
 import com.zy.entity.Repair;
 import com.zy.entity.Repairtype;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Map;
@@ -245,4 +246,25 @@ public interface RepairService {
      * @return
      */
     List<Map<String,Object>> countBySex();
+    /**
+     * 查看是否已经评价过
+     * @param id
+     * @return
+     */
+    public List<Map<String,Object>> findEvaluation(int id);
+
+    /**
+     * 商户评价
+     * @param id
+     * @param reactspeed
+     * @param professionlevel
+     * @param serviceattitude
+     * @param contentevaluation
+     * @return
+     */
+    public int mtEvaluate(int id,
+                          String reactspeed,
+                          String professionlevel,
+                          String serviceattitude,
+                          String contentevaluation);
 }

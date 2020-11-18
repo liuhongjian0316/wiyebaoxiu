@@ -220,7 +220,7 @@ public interface RepairDao extends BaseMapper<Repair> {
      */
     @Select("SELECT m.*,w.workname FROM merchantorder m " +
             "INNER JOIN woktype w ON w.worktypeid = m.worktypeid " +
-            "WHERE m.merchantid = #{merchantid} and (m.state = 4 or m.state = 10 or m.state = 11)" )
+            "WHERE m.merchantid = #{merchantid} and (m.state = 4 or m.state = 10 or m.state = 11 or m.state = 12)" )
     public IPage<Map<String,Object>> allOKOrder(Page<Map<String,Object>> page,@Param("merchantid") int merchantid);
 
     /**
@@ -229,4 +229,33 @@ public interface RepairDao extends BaseMapper<Repair> {
      */
     @Select("select if(r.sex=1 ,'男','女') as name,count(*) as value from repair r GROUP BY r.sex")
     List<Map<String,Object>> countBySex();
+
+    /**
+     * 查看是否已经评价过
+     * @param id
+     * @return
+     */
+    @Select("select content_evaluation from merchantorder " +
+            "where work_order_id = #{id}")
+    public List<Map<String,Object>> findEvaluation(@Param("id") int id);
+    /**
+     * 商户评价
+     * @param id
+     * @param reactspeed
+     * @param professionlevel
+     * @param serviceattitude
+     * @return
+     */
+    @Update("update merchantorder set react_speed = #{reactspeed}," +
+            "profession_level = #{professionlevel}," +
+            "service_attitude = #{serviceattitude}," +
+            "content_evaluation = #{contentevaluation}," +
+            "state = 12 " +
+            "where work_order_id = #{id}")
+    public int mtEvaluate(@Param("id") int id,
+                          @Param("reactspeed") String reactspeed,
+                          @Param("professionlevel") String professionlevel,
+                          @Param("serviceattitude") String serviceattitude,
+                          @Param("contentevaluation") String contentevaluation);
+
 }

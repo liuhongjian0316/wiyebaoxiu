@@ -229,6 +229,16 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
+    public List<Map<String, Object>> findEvaluation(int id) {
+        return repairDao.findEvaluation(id);
+    }
+
+    @Override
+    public int mtEvaluate(int id, String reactspeed, String professionlevel, String serviceattitude, String contentevaluation) {
+        return repairDao.mtEvaluate(id, reactspeed, professionlevel, serviceattitude, contentevaluation);
+    }
+
+    @Override
     public IPage<Map<String, Object>> allOKOrder(Integer pageNum, Integer pageSize,int merchantid) {
         return repairDao.allOKOrder(new Page<>(pageNum,pageSize),merchantid);
     }

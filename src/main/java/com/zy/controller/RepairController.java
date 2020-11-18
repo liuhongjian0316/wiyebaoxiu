@@ -332,4 +332,18 @@ public class RepairController {
         return new LayuiPageResult(mapIPage.getTotal(), mapIPage.getRecords());
 
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/mtEvaluate.do/{id}",method = RequestMethod.POST)
+    public JSONResult mtEvaluate(@RequestBody Merchantorder merchantorder,@PathVariable("id") int id){
+
+        int i = repairService.mtEvaluate(id, merchantorder.getReactSpeed(),
+                merchantorder.getProfessionLevel(),
+                merchantorder.getServiceAttitude(),
+                merchantorder.getContentEvaluation());
+        if(i>0){
+            return JSONResult.ok();
+        }
+                return JSONResult.errorMsg("网络不佳,请重试");
+    }
 }

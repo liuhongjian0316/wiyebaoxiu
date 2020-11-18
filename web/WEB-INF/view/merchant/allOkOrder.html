@@ -22,7 +22,7 @@
     {{#  if(d.state == 4){ }}
     <a class="layui-btn layui-btn-xs" lay-event="edit">查看详情</a>
     <a class="layui-btn layui-btn-xs layui-bg-blue " lay-event="edit1">填写评价</a>
-    {{#  } else if(d.state == 11 || d.state == 10 ){ }}
+    {{#  } else if(d.state == 11 || d.state == 10 || d.state == 12s){ }}
     <a class="layui-btn layui-btn-xs" lay-event="edit">查看详情</a>
     {{#  }   }}
 
@@ -52,8 +52,9 @@
         version: '1584613945938' //为了更新 js 缓存，可忽略
     });
 
-    layui.use(['layedit','laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider'], function(){
-        var laydate = layui.laydate //日期
+    layui.use(['layedit','laydate','rate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider'], function(){
+        var  rate = layui.rate//评分
+            ,laydate = layui.laydate //日期
             ,laypage = layui.laypage //分页
             ,layedit = layui.layedit //富文本
             ,layer = layui.layer //弹层
@@ -104,35 +105,64 @@
             var data = obj.data //获得当前行数据
                 ,layEvent = obj.event; //获得 lay-event 对应的值
             if(layEvent === 'edit1'){
-                layer.confirm('确定抢该订单么', function(index){
-                    layer.close(index);
-                    var loginLoadIndex = layer.load(2);
-                    //向服务端发送删除指令
-                    $.ajax({
-                        type:'post',
-                        url:'/merchantorder/robOrder.do/'+data.work_order_id,
-                        contentType:'application/json',
-                        dataType:'json',
-                        success:function (data) {
-                            if (data.status == "200") {
+                //打开添加模态框
+                layer.open({
+                    type: 1,
+                    title: '评价', //不显示标题栏
+                    closeBtn: 2,
+                    offset: '10px',
+                    area: ['826px','600px'],
+                    shade: 0.8,
+                    id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
+                    btn: ['保存', '重置','取消'],
+                    btnAlign: 'r',
+                    moveType: 1, //拖拽模式，0或者1
+                    content:$('.evaluatePage'),
+                    yes: function (index, layero) {
+                        //触发提交按钮
+                        layero.find('form').find('a[lay-submit]').click();
+                        //添加按钮触发
+                        form.on('submit(AddformDemo)', function(data1){
+                            var loginLoadIndex = layer.load(2);
+                            $.ajax({
+                                type:'post',
+                                url:'/repair/mtEvaluate.do/'+data.work_order_id,
+                                dataType:'json',
+                                data:JSON.stringify(data1.field),
+                                contentType:'application/json',
+                                success:function (data1) {
+                                    layer.close(loginLoadIndex);
+                                    if (data1.status == "200"){
+                                        layer.msg('感谢您的评价');
+                                        table.reload('demo', {
+                                            url: '/repair/allOKOrder.do'
+                                            ,where: {} //设定异步数据接口的额外参数
+                                        });
+                                        layer.close(index);
 
-                                table.reload('demo', {
-                                    url: '/repair/repairFindXs.do'
-                                    ,where: {} //设定异步数据接口的额外参数
-                                });
-                                layer.closeAll();
-                                layer.msg('抢单成功');
-                            }else{
-                                layer.closeAll();
-                                layer.close(loginLoadIndex);
-                                layer.alert("该维修员当前有订单处理,暂时不能抢单");
-                            }
-                        },
-                        error:function () {
-                            layer.alert("网络不佳，数据获取不到");
-                            layer.closeAll();
-                        }
-                    });
+                                    }else{
+                                        layer.close(loginLoadIndex);
+                                        layer.alert("网络不佳,请重试");
+                                        $('#loginBtn').val("立即提交");
+                                    }
+                                },
+                                error:function () {
+                                    layer.close(loginLoadIndex);
+                                    layer.alert("网络不佳，请稍后重试");
+                                    $('#formDemo').val("正在添加...");
+                                }
+                            });
+                        });
+                    },
+                    btn2:function (index,layero) {
+                        //触发重置按钮
+                        layero.find('form').find('button').click();
+
+                        return false;
+                    },
+                    btn3:function (index,layero) {
+                        //取消
+                    }
                 });
             } else if(layEvent === 'edit'){
                 //修改模态框赋值
@@ -217,80 +247,62 @@
             }
         });
 
-        //添加按钮点击
-        $(document).on('click','#addBtn',function(){
-            //打开添加模态框
-            layer.open({
-                type: 1,
-                title: '添加信息', //不显示标题栏
-                closeBtn: 2,
-                offset: '10px',
-                area: ['826px','600px'],
-                shade: 0.8,
-                id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
-                btn: ['保存', '重置','取消'],
-                btnAlign: 'r',
-                moveType: 1, //拖拽模式，0或者1
-                content:$('.addPage'),
-                yes: function (index, layero) {
-                    //触发提交按钮
-                    layero.find('form').find('a[lay-submit]').click();
-                    //添加按钮触发
-                    form.on('submit(AddformDemo)', function(data){
-                        var loginLoadIndex = layer.load(2);
-                        $.ajax({
-                            type:'post',
-                            url:'',
-                            dataType:'json',
-                            data:JSON.stringify(data.field),
-                            contentType:'application/json',
-                            success:function (data) {
-                                layer.close(loginLoadIndex);
-                                if (data.status == "200"){
-                                    layer.msg('添加成功');
-                                    table.reload('demo', {
-                                        url: '/repair/selectallrepair?all='
-                                        ,where: {} //设定异步数据接口的额外参数
-                                    });
-                                    layer.close(index);
 
-                                }else{
-                                    layer.close(loginLoadIndex);
-                                    layer.alert("添加失败");
-                                    $('#loginBtn').val("立即提交");
-                                }
-                            },
-                            error:function () {
-                                layer.close(loginLoadIndex);
-                                layer.alert("网络不佳，请稍后重试");
-                                $('#formDemo').val("正在添加...");
-                            }
-                        });
-                    });
-                },
-                btn2:function (index,layero) {
-                    //触发重置按钮
-                    layero.find('form').find('button').click();
-
-                    return false;
-                },
-                btn3:function (index,layero) {
-                    //取消
-                }
-            });
+        rate.render({
+            elem: '#test5'
+            ,value: 3
+            ,text: true
+            ,setText: function(value){ //自定义文本的回调
+                var arrs = {
+                    '1': '极差'
+                    ,'2': '差'
+                    ,'3': '一般'
+                    ,'4': '满意'
+                    ,'5': '超赞'
+                };
+                this.span.text(arrs[value] || ( value + "星"));
+            }
+            ,choose:function (value) {
+                $("#reactS").val(value);
+            }
+        })
+        rate.render({
+            elem: '#test6'
+            ,value: 3
+            ,text: true
+            ,setText: function(value){ //自定义文本的回调
+                var arrs = {
+                    '1': '极差'
+                    ,'2': '差'
+                    ,'3': '一般'
+                    ,'4': '满意'
+                    ,'5': '超赞'
+                };
+                this.span.text(arrs[value] || ( value + "星"));
+            }
+            ,choose:function (value) {
+                $("#professionLevel").val(value);
+            }
+        })
+        rate.render({
+            elem: '#test7'
+            ,value: 3
+            ,text: true
+            ,setText: function(value){ //自定义文本的回调
+                var arrs = {
+                    '1': '极差'
+                    ,'2': '差'
+                    ,'3': '一般'
+                    ,'4': '满意'
+                    ,'5': '超赞'
+                };
+                this.span.text(arrs[value] || ( value + "星"));
+            }
+            ,choose:function (value) {
+                $("#serviceAttitude").val(value);
+            }
         })
 
-        //搜索
-        $("#search").on('click',function (){
-            //搜索条件
-            let all = $("#all").val();
-            table.reload('demo', {
-                url:'/repair/selectallrepair'
-                , where: {
-                    'all':all,
-                }
-            });
-        })
 
     });
 </script>
@@ -342,6 +354,42 @@
         </div>
     </form>
 </div>
-
+<div class="evaluatePage" style="display: none">
+    <form class="layui-form"  >
+        <div class="layui-form-item">
+            <input type="text" name="reactSpeed" id="reactS" >
+            <label class="layui-form-label">反应速度</label>
+                <div class="layui-input-block">
+                    <div id="test5"></div>
+                </div>
+        </div>
+        <div class="layui-form-item">
+            <input type="text" name="professionLevel" id="professionLevel" >
+            <label class="layui-form-label">专业水平</label>
+                <div class="layui-input-block">
+                    <div id="test6"></div>
+                </div>
+        </div>
+        <div class="layui-form-item">
+            <input type="text" name="serviceAttitude" id="serviceAttitude" >
+            <label class="layui-form-label">服务态度</label>
+                <div class="layui-input-block">
+                    <div id="test7"></div>
+                </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">评价内容</label>
+            <div class="layui-input-block">
+                <textarea name="contentEvaluation" required lay-verify="required" placeholder="请输入评价内容" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block" style="display: none">
+                <a class="layui-btn" lay-submit lay-filter="AddformDemo" style="display: none">立即提交</a>
+                <button type="reset" class="layui-btn layui-btn-primary" style="display: none" >重置</button>
+            </div>
+        </div>
+    </form>
+</div>
 <!--end-->
 </html>

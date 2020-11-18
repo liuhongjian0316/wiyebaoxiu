@@ -105,6 +105,10 @@
             });
             return false;
         })
+        laydate.render({
+            elem: '#reserveTime'
+            ,type: 'datetime'
+        });
     });
 </script>
 <!--thymleaf 标签用法-->
@@ -116,7 +120,7 @@
                 <input type="text" hidden th:value="${session.login.merchantid}" name="merchantid" id="merchantid" >
                 <label class="layui-form-label">报修人</label>
                 <div class="layui-input-block">
-                    <input type="text" name="applyName" required th:value="${session.login.mtname}" readonly lay-verify="=required" placeholder="请输入申请人" autocomplete="off" class="layui-input" id="applyName">
+                    <input type="text" name="applyName" required th:value="${session.login.mtname}" readonly lay-verify="required" placeholder="请输入申请人" autocomplete="off" class="layui-input" id="applyName">
                     <span id="applynameSpan"></span>
                 </div>
             </div>
@@ -131,21 +135,21 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">商店名称及具体地点</label>
                 <div class="layui-input-block">
-                    <input type="text" name="shopName" required th:value="${session.login.merchantname}"  lay-verify="=required" placeholder="请输入商店名称及具体地点" autocomplete="off" readonly class="layui-input" id="shopName">
+                    <input type="text" name="shopName" required th:value="${session.login.merchantname}"  lay-verify="required" placeholder="请输入商店名称及具体地点" autocomplete="off" readonly class="layui-input" id="shopName">
                     <span id="shopnameSpan"></span>
                 </div>
             </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">联系电话</label>
                 <div class="layui-input-block">
-                    <input type="text" name="tel" required th:value="${session.login.tel}"  lay-verify="=required" placeholder="联系电话" autocomplete="off" class="layui-input" id="tel" readonly>
+                    <input type="text" name="tel" required th:value="${session.login.tel}"  lay-verify="required" placeholder="联系电话" autocomplete="off" class="layui-input" id="tel" readonly>
                     <span id="telSpan"></span>
                 </div>
             </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">预约时间</label>
                 <div class="layui-input-block">
-                    <input type="text" name="reserveTime" required  lay-verify="=required" placeholder="请输入预约时间" autocomplete="off" class="layui-input" id="reserveTime">
+                    <input type="text" name="reserveTime" readonly required  lay-verify="required" placeholder="请输入预约时间" autocomplete="off" class="layui-input" id="reserveTime">
                     <span id="reservetimeSpan"></span>
                 </div>
             </div>
