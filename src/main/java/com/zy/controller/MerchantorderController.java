@@ -1,13 +1,16 @@
 package com.zy.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.zy.common.config.websocket.MySocketHandler;
 import com.zy.common.utils.JSONResult;
 import com.zy.common.utils.LayuiPageResult;
 import com.zy.common.utils.TiimeUtils;
 import com.zy.entity.Merchantorder;
 import com.zy.entity.Woktype;
 import com.zy.service.MerchantorderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.socket.TextMessage;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +34,8 @@ public class MerchantorderController {
      */
     @Resource
     private MerchantorderService merchantorderService;
+    @Autowired
+    private MySocketHandler socketHandler;
 
 
     /**
@@ -61,6 +66,7 @@ public class MerchantorderController {
 
         int i = merchantorderService.applyMt(merchantorder);
         if (i>0){
+            socketHandler.sendMessageToAllUsers(new TextMessage("商户申请"));
             return JSONResult.ok();
         }
             return JSONResult.errorMsg("提交失败,请重新提交!!!");
