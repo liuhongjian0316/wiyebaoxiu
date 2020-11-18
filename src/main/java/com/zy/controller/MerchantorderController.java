@@ -90,6 +90,7 @@ public class MerchantorderController {
 
         int i = merchantorderService.applyMt(merchantorder);
         if (i>0){
+            socketHandler.sendMessageToAllUsers(new TextMessage("商户发布悬赏订单"));
             return JSONResult.ok();
         }
         return JSONResult.errorMsg("提交失败,请重新提交!!!");

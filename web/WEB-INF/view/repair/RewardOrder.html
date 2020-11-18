@@ -285,6 +285,80 @@
                 }
             });
         })
+        var ws;
+        //避免重复连接
+        var lockReconnect = false;
+        var wsUrl = "ws://localhost:8080/websocket";
+        createWebSocket(wsUrl);
+        function createWebSocket(url) {
+            try {
+                ws = new WebSocket(url);
+                initEventHandle();
+            } catch (e) {
+                //重新连接
+                reconnect(url);
+            }
+        }
+
+        window.initEventHandle = function(){
+            ws.onclose = function () {
+                console.info("连接关闭");
+                reconnect(wsUrl);
+            };
+            ws.onerror = function () {
+                console.info("传输异常");
+                reconnect(wsUrl);
+            };
+            ws.onopen = function () {
+                //心跳检测重置
+                heartCheck.reset().start();
+            };
+
+            ws.onmessage = function(event) {
+                if(event.data=="商户发布悬赏订单"){
+                    layer.alert("有新的悬赏订单发布请及时查看",function (index) {
+                        layer.close(index);
+                        location.reload();
+                    });
+                }
+                //如果获取到消息，心跳检测重置
+                heartCheck.reset().start();
+            }
+        }
+        function reconnect(url) {
+            if(lockReconnect) return;
+            lockReconnect = true;
+            //没连接上会一直重连，设置延迟避免请求过多
+            setTimeout(function () {
+                createWebSocket(url);
+                lockReconnect = false;
+            }, 5000);
+        }
+        //心跳检测,每5s心跳一次
+        var heartCheck = {
+            timeout: 5000,
+            timeoutObj: null,
+            serverTimeoutObj: null,
+            reset: function(){
+                clearTimeout(this.timeoutObj);
+                clearTimeout(this.serverTimeoutObj);
+                return this;
+            },
+            start: function(){
+                var self = this;
+                this.timeoutObj = setTimeout(function(){
+                    //这里发送一个心跳，后端收到后，返回一个心跳消息，
+                    //onmessage拿到返回的心跳就说明连接正常
+                    self.serverTimeoutObj = setTimeout(function(){
+                        //如果超过一定时间还没重置，说明后端主动断开了
+
+                        ws.close();
+                        //如果onclose会执行reconnect，我们执行ws.close()就行了.
+                        //如果直接执行reconnect 会触发onclose导致重连两次
+                    }, self.timeout)
+                }, this.timeout)
+            }
+        }
 
     });
 </script>
