@@ -130,4 +130,9 @@ public class BackController {
     public String XsorderNo(){
         return "/repair/XsorderNo";
     }
+
+    @RequestMapping(value= "/merchant/allOkOrder")
+    public String allOkOrder(){
+        return "/merchant/allOkOrder";
+    }
 }

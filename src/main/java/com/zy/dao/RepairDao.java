@@ -214,6 +214,16 @@ public interface RepairDao extends BaseMapper<Repair> {
     List<Map<String,Object>> countByType();
 
     /**
+     * 查看已结束订单
+     * @param page
+     * @return
+     */
+    @Select("SELECT m.*,w.workname FROM merchantorder m " +
+            "INNER JOIN woktype w ON w.worktypeid = m.worktypeid " +
+            "WHERE m.merchantid = #{merchantid} and (m.state = 4 or m.state = 10 or m.state = 11)" )
+    public IPage<Map<String,Object>> allOKOrder(Page<Map<String,Object>> page,@Param("merchantid") int merchantid);
+
+    /**
      * 管理员按性别统计维修员人数
      * @return
      */

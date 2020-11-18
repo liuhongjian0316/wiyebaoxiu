@@ -231,6 +231,15 @@ public interface RepairService {
      */
     List<Map<String,Object>> countByType();
 
+
+    /**
+     * 查看全部结束订单
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    public IPage<Map<String,Object>> allOKOrder(Integer pageNum,Integer pageSize,int merchantid);
+
     /**
      * 管理员统计 按性别统计维修员人数
      * @return

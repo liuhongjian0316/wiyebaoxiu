@@ -229,6 +229,11 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
+    public IPage<Map<String, Object>> allOKOrder(Integer pageNum, Integer pageSize,int merchantid) {
+        return repairDao.allOKOrder(new Page<>(pageNum,pageSize),merchantid);
+    }
+
+    @Override
     public IPage<Map<String, Object>> repairFindCd(Integer pageNum, Integer pageSize) {
         return repairDao.repairFindCd(new Page<>(pageNum,pageSize));
     }

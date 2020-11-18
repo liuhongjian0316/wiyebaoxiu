@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>已结束订单信息</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+</head>
+<body>
+<div style="padding: 20px; background-color: #F2F2F2;max-height: 100%">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <i class="layui-icon layui-icon-tabs">数据列表</i>
+        </div>
+    </div>
+    <div class="layui-card">
+        <table class="layui-hide" id="demo" lay-filter="test"></table>
+    </div>
+</div>
+<script type="text/html" id="barDemo">
+
+
+    {{#  if(d.state == 4){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="edit">查看详情</a>
+    <a class="layui-btn layui-btn-xs layui-bg-blue " lay-event="edit1">填写评价</a>
+    {{#  } else if(d.state == 11 || d.state == 10 ){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="edit">查看详情</a>
+    {{#  }   }}
+
+
+</script>
+
+<script type="text/html" id="titleTpl3">
+    {{#  if(d.state == 4){ }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs">维修完成</a>
+    {{#  } else if(d.state == 11){ }}
+    <a class="layui-btn layui-btn-xs">撤单完成</a>
+    {{#  } else if(d.state == 10){ }}
+    <a class="layui-btn layui-btn-xs">订单被拒绝</a>
+    {{#  }   }}
+</script>
+<script type="text/html" id="titleTpl4">
+    {{#  if(d.workstate == 0){ }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs">普通报修</a>
+    {{#  } else if(d.workstate == 1){ }}
+    <a class="layui-btn layui-btn-xs">悬赏报修</a>
+    {{#  }   }}
+</script>
+<script src="/static/jquery/jquery-3.4.1.min.js"></script>
+<script src="/static/layui/layui.js"></script>
+<script th:inline="none">
+    layui.config({
+        version: '1584613945938' //为了更新 js 缓存，可忽略
+    });
+
+    layui.use(['layedit','laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider'], function(){
+        var laydate = layui.laydate //日期
+            ,laypage = layui.laypage //分页
+            ,layedit = layui.layedit //富文本
+            ,layer = layui.layer //弹层
+            ,table = layui.table //表格
+            ,form = layui.form //表单
+            ,carousel = layui.carousel //轮播
+            ,upload = layui.upload //上传
+            ,element = layui.element //元素操作
+            ,slider = layui.slider //滑块
+
+        //下拉框初始化(类型)
+        $.ajax({
+            url: '/merchantorder/allWorktype.do',
+            dataType: 'json',
+            type: 'post',
+            contentType:'application/json',
+            success: function (data) {
+                $.each(data, function (index, item) {
+                    $('#worktypeid').append(new Option(item.workname,item.worktypeid));// 下拉菜单里添加元素
+                });
+                layui.form.render("select");
+            }
+        })
+        //执行一个 table 实例
+        table.render({
+            elem: '#demo'
+            ,height: 420
+            ,url: '/repair/allOKOrder.do' //数据接口
+            ,title: '已提交的申请表'
+            ,page: true //开启分页
+            ,totalRow: true //开启合计行
+            ,method:'post'
+            ,cols: [[ //表头
+                {field: 'work_order_id', title: 'ID', align:'center', width:60, sort: true, fixed: 'left'}
+                ,{field: 'apply_name', title: '申请人', align:'center', width:170}
+                ,{field: 'tel', title: '联系电话', align:'center', width:170}
+                ,{field: 'shop_name', title: '商店名称及具体地点', align:'center', width:170}
+                ,{field: 'reserve_time', title: '预约时间', align:'center', width:170}
+                ,{field: 'workname', title: '维修种类', align:'center', width: 170, sort: true}
+                ,{field: 'workstate', title: '报修类型', align:'center', width: 170, sort: true,templet: '#titleTpl4'}
+                ,{field: 'state', title: '状态', align:'center', width: 170,templet: '#titleTpl3'}
+                ,{fixed: 'right', title:'操作',width: 195, align:'center', toolbar: '#barDemo'}
+            ]]
+        });
+
+        //监听行工具事件
+        table.on('tool(test)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data //获得当前行数据
+                ,layEvent = obj.event; //获得 lay-event 对应的值
+            if(layEvent === 'edit1'){
+                layer.confirm('确定抢该订单么', function(index){
+                    layer.close(index);
+                    var loginLoadIndex = layer.load(2);
+                    //向服务端发送删除指令
+                    $.ajax({
+                        type:'post',
+                        url:'/merchantorder/robOrder.do/'+data.work_order_id,
+                        contentType:'application/json',
+                        dataType:'json',
+                        success:function (data) {
+                            if (data.status == "200") {
+
+                                table.reload('demo', {
+                                    url: '/repair/repairFindXs.do'
+                                    ,where: {} //设定异步数据接口的额外参数
+                                });
+                                layer.closeAll();
+                                layer.msg('抢单成功');
+                            }else{
+                                layer.closeAll();
+                                layer.close(loginLoadIndex);
+                                layer.alert("该维修员当前有订单处理,暂时不能抢单");
+                            }
+                        },
+                        error:function () {
+                            layer.alert("网络不佳，数据获取不到");
+                            layer.closeAll();
+                        }
+                    });
+                });
+            } else if(layEvent === 'edit'){
+                //修改模态框赋值
+                $.ajax({
+                    type:'post',
+                    url:'/merchantorder/findMtByid.do/'+data.work_order_id,
+                    contentType:'application/json',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+
+                        //赋初始值
+                        form.val("updateForm",{
+                            "applyName":data[0].apply_name
+                            ,"worktypeid":data[0].worktypeid
+                            ,"shopName":data[0].shop_name
+                            ,"tel":data[0].tel
+                            ,"reserveTime":data[0].reserve_time
+                        });
+                        //加载富文本
+                        var index = layedit.build('faultDescription',{
+                            tool: [
+                                'strong' //加粗
+                                ,'italic' //斜体
+                                ,'underline' //下划线
+                                ,'del' //删除线
+
+                                ,'|' //分割线
+
+                                ,'left' //左对齐
+                                ,'center' //居中对齐
+                                ,'right' //右对齐
+                                ,'link' //超链接
+                                ,'unlink' //清除链接
+                                ,'face' //表情
+                                ,'image' //插入图片
+                                ,'help' //帮助
+                            ]
+                        });
+                        layedit.set({
+                            uploadImage: {
+                                url: '/upload' //接口url
+                                ,type: 'post' //默认post\
+                                ,success:function(res){
+                                    console.log(res)
+                                }
+                            }
+                        });
+                        layedit.setContent(index,data[0].fault_description,false)
+                        form.render(null, 'updateForm');
+                        //自定义验证
+                        form.verify({
+                            faultDescription:function (value) {
+                                layedit.sync(index);
+                            }
+                        });
+
+
+                    },
+                    error:function () {
+                        layer.alert("网络不佳，数据获取不到");
+                    }
+                });
+                //打开编辑模态框
+                layer.open({
+                    type: 1,
+                    title: '编辑信息', //不显示标题栏
+                    closeBtn: 2,
+                    offset: '10px',
+                    area: ['820px','585px'],
+                    shade: 0.8,
+                    id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
+                    btn: ['保存','关闭'],
+                    btnAlign: 'r',
+                    moveType: 1, //拖拽模式，0或者1
+                    content:$('.updatePage'),
+                    yes: function (index, layero) {
+
+                    }
+                });
+
+            }
+        });
+
+        //添加按钮点击
+        $(document).on('click','#addBtn',function(){
+            //打开添加模态框
+            layer.open({
+                type: 1,
+                title: '添加信息', //不显示标题栏
+                closeBtn: 2,
+                offset: '10px',
+                area: ['826px','600px'],
+                shade: 0.8,
+                id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
+                btn: ['保存', '重置','取消'],
+                btnAlign: 'r',
+                moveType: 1, //拖拽模式，0或者1
+                content:$('.addPage'),
+                yes: function (index, layero) {
+                    //触发提交按钮
+                    layero.find('form').find('a[lay-submit]').click();
+                    //添加按钮触发
+                    form.on('submit(AddformDemo)', function(data){
+                        var loginLoadIndex = layer.load(2);
+                        $.ajax({
+                            type:'post',
+                            url:'',
+                            dataType:'json',
+                            data:JSON.stringify(data.field),
+                            contentType:'application/json',
+                            success:function (data) {
+                                layer.close(loginLoadIndex);
+                                if (data.status == "200"){
+                                    layer.msg('添加成功');
+                                    table.reload('demo', {
+                                        url: '/repair/selectallrepair?all='
+                                        ,where: {} //设定异步数据接口的额外参数
+                                    });
+                                    layer.close(index);
+
+                                }else{
+                                    layer.close(loginLoadIndex);
+                                    layer.alert("添加失败");
+                                    $('#loginBtn').val("立即提交");
+                                }
+                            },
+                            error:function () {
+                                layer.close(loginLoadIndex);
+                                layer.alert("网络不佳，请稍后重试");
+                                $('#formDemo').val("正在添加...");
+                            }
+                        });
+                    });
+                },
+                btn2:function (index,layero) {
+                    //触发重置按钮
+                    layero.find('form').find('button').click();
+
+                    return false;
+                },
+                btn3:function (index,layero) {
+                    //取消
+                }
+            });
+        })
+
+        //搜索
+        $("#search").on('click',function (){
+            //搜索条件
+            let all = $("#all").val();
+            table.reload('demo', {
+                url:'/repair/selectallrepair'
+                , where: {
+                    'all':all,
+                }
+            });
+        })
+
+    });
+</script>
+</body>
+<!--修改模态框-->
+<div class="updatePage" style="display: none">
+    <form class="layui-form" lay-filter="updateForm" >
+        <div class="layui-form-item">
+            <label class="layui-form-label">报修人</label>
+            <div class="layui-input-block">
+                <input type="text" name="applyName" required  readonly lay-verify="=required" placeholder="请输入申请人" autocomplete="off" class="layui-input" id="applyName">
+                <span id="applyNameSpan"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">报修类型</label>
+            <div class="layui-input-block">
+                <select disabled="disabled" name="worktypeid" id="worktypeid" lay-verify="required">
+                    <option value="">请选择</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">商店名称及具体地点</label>
+            <div class="layui-input-block">
+                <input type="text" name="shopName" required   lay-verify="=required" placeholder="请输入商店名称及具体地点" autocomplete="off" readonly class="layui-input" id="shopName">
+                <span id="shopNameSpan"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">联系电话</label>
+            <div class="layui-input-block">
+                <input type="text" name="tel" required   lay-verify="=required" placeholder="联系电话" autocomplete="off" class="layui-input" id="tel" readonly>
+                <span id="telSpan"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">预约时间</label>
+            <div class="layui-input-block">
+                <input type="text" name="reserveTime" readonly required  lay-verify="=required" placeholder="请输入预约时间" autocomplete="off" class="layui-input" id="reserveTime">
+                <span id="reservetimeSpan"></span>
+            </div>
+        </div>
+        <div>
+            <label class="layui-form-label">故障详情</label>
+            <div class="layui-input-block">
+                <textarea name="faultDescription" id="faultDescription" style="display: none;" lay-verify="faultDescription"></textarea>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!--end-->
+</html>

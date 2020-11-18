@@ -317,4 +317,19 @@ public class RepairController {
         }
         return JSONResult.errorMsg("网络不佳,请稍后重试");
     }
+    @ResponseBody
+    @RequestMapping(value = "/allOKOrder.do", method = RequestMethod.POST)
+    public LayuiPageResult allOKOrder(@RequestParam("page") Integer page,
+                                        @RequestParam("limit") Integer limit,
+                                      HttpServletRequest request) {
+
+        //获取session
+        HttpSession session   =   request.getSession();
+        Map<String, Object> login = (Map<String, Object>)session.getAttribute("login");
+        String merchantid = login.get("merchantid").toString();
+
+        IPage<Map<String, Object>> mapIPage = repairService.allOKOrder(page, limit,Integer.valueOf(merchantid));
+        return new LayuiPageResult(mapIPage.getTotal(), mapIPage.getRecords());
+
+    }
 }
