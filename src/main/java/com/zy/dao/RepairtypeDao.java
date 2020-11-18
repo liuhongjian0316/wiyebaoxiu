@@ -1,8 +1,12 @@
 package com.zy.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zy.entity.Repairtype;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * (Repairtype)表数据库访问层
@@ -10,56 +14,13 @@ import java.util.List;
  * @author makejava
  * @since 2020-10-22 11:26:16
  */
-public interface RepairtypeDao {
+public interface RepairtypeDao extends BaseMapper<Repairtype> {
 
     /**
-     * 通过ID查询单条数据
-     *
-     * @param repairtypeid 主键
-     * @return 实例对象
+     * 管理员统计工种类型
+     * @return
      */
-    Repairtype queryById(Integer repairtypeid);
-
-    /**
-     * 查询指定行数据
-     *
-     * @param offset 查询起始位置
-     * @param limit 查询条数
-     * @return 对象列表
-     */
-    List<Repairtype> queryAllByLimit(@Param("offset") int offset, @Param("limit") int limit);
-
-
-    /**
-     * 通过实体作为筛选条件查询
-     *
-     * @param repairtype 实例对象
-     * @return 对象列表
-     */
-    List<Repairtype> queryAll(Repairtype repairtype);
-
-    /**
-     * 新增数据
-     *
-     * @param repairtype 实例对象
-     * @return 影响行数
-     */
-    int insert(Repairtype repairtype);
-
-    /**
-     * 修改数据
-     *
-     * @param repairtype 实例对象
-     * @return 影响行数
-     */
-    int update(Repairtype repairtype);
-
-    /**
-     * 通过主键删除数据
-     *
-     * @param repairtypeid 主键
-     * @return 影响行数
-     */
-    int deleteById(Integer repairtypeid);
+    @Select("SELECT  repairtypename as name,count(*) as value  from repairtype GROUP BY repairtypename")
+    List<Map<String,Object>> countByName();
 
 }

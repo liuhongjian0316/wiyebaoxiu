@@ -224,6 +224,11 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
+    public List<Map<String, Object>> countBySex() {
+        return repairDao.countBySex();
+    }
+
+    @Override
     public IPage<Map<String, Object>> repairFindCd(Integer pageNum, Integer pageSize) {
         return repairDao.repairFindCd(new Page<>(pageNum,pageSize));
     }

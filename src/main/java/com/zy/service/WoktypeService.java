@@ -2,6 +2,7 @@ package com.zy.service;
 
 import com.zy.entity.Woktype;
 import java.util.List;
+import java.util.Map;
 
 /**
  * (Woktype)表服务接口
@@ -12,44 +13,18 @@ import java.util.List;
 public interface WoktypeService {
 
     /**
-     * 通过ID查询单条数据
-     *
-     * @param worktypeid 主键
-     * @return 实例对象
+     * 查询列表（管理员统计）
+     * @return
      */
-    Woktype queryById(Integer worktypeid);
+    List<Map<String,Object>> queryList();
 
     /**
-     * 查询多条数据
-     *
-     * @param offset 查询起始位置
-     * @param limit 查询条数
-     * @return 对象列表
+     * 管理员统计根据类型名称统计
+     * @return
      */
-    List<Woktype> queryAllByLimit(int offset, int limit);
+    List<Map<String,Object>> countByName();
 
-    /**
-     * 新增数据
-     *
-     * @param woktype 实例对象
-     * @return 实例对象
-     */
-    Woktype insert(Woktype woktype);
 
-    /**
-     * 修改数据
-     *
-     * @param woktype 实例对象
-     * @return 实例对象
-     */
-    Woktype update(Woktype woktype);
 
-    /**
-     * 通过主键删除数据
-     *
-     * @param worktypeid 主键
-     * @return 是否成功
-     */
-    boolean deleteById(Integer worktypeid);
 
 }

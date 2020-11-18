@@ -1,8 +1,12 @@
 package com.zy.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zy.entity.Woktype;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * (Woktype)表数据库访问层
@@ -10,56 +14,12 @@ import java.util.List;
  * @author makejava
  * @since 2020-10-28 15:19:35
  */
-public interface WoktypeDao {
+public interface WoktypeDao extends BaseMapper<Woktype> {
 
     /**
-     * 通过ID查询单条数据
-     *
-     * @param worktypeid 主键
-     * @return 实例对象
+     * 管理员统计 根据工单类型统计
+     * @return
      */
-    Woktype queryById(Integer worktypeid);
-
-    /**
-     * 查询指定行数据
-     *
-     * @param offset 查询起始位置
-     * @param limit 查询条数
-     * @return 对象列表
-     */
-    List<Woktype> queryAllByLimit(@Param("offset") int offset, @Param("limit") int limit);
-
-
-    /**
-     * 通过实体作为筛选条件查询
-     *
-     * @param woktype 实例对象
-     * @return 对象列表
-     */
-    List<Woktype> queryAll(Woktype woktype);
-
-    /**
-     * 新增数据
-     *
-     * @param woktype 实例对象
-     * @return 影响行数
-     */
-    int insert(Woktype woktype);
-
-    /**
-     * 修改数据
-     *
-     * @param woktype 实例对象
-     * @return 影响行数
-     */
-    int update(Woktype woktype);
-
-    /**
-     * 通过主键删除数据
-     *
-     * @param worktypeid 主键
-     * @return 影响行数
-     */
-    int deleteById(Integer worktypeid);
-
+    @Select("SELECT workname as name , count(*) as value from woktype GROUP BY workname")
+    List<Map<String,Object>> countByName();
 }

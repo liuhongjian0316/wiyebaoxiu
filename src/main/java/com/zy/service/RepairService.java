@@ -230,4 +230,10 @@ public interface RepairService {
      * @return
      */
     List<Map<String,Object>> countByType();
+
+    /**
+     * 管理员统计 按性别统计维修员人数
+     * @return
+     */
+    List<Map<String,Object>> countBySex();
 }

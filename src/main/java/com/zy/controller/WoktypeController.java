@@ -21,15 +21,5 @@ public class WoktypeController {
     @Resource
     private WoktypeService woktypeService;
 
-    /**
-     * 通过主键查询单条数据
-     *
-     * @param id 主键
-     * @return 单条数据
-     */
-    @GetMapping("selectOne")
-    public Woktype selectOne(Integer id) {
-        return this.woktypeService.queryById(id);
-    }
 
 }

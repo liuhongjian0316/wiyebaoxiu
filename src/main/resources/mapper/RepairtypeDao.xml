@@ -8,57 +8,5 @@
         <result property="repairtypename" column="repairtypename" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <!--查询单个-->
-    <select id="queryById" resultMap="BaseResultMap">
-        select
-          repairtypeid, repairtypename
-        from property.repairtype
-        where repairtypeid = #{repairtypeid}
-    </select>
-
-    <!--查询指定行数据-->
-    <select id="queryAllByLimit" resultMap="BaseResultMap">
-        select
-          repairtypeid, repairtypename
-        from property.repairtype
-        limit #{offset}, #{limit}
-    </select>
-
-    <!--通过实体作为筛选条件查询-->
-    <select id="queryAll" resultMap="BaseResultMap">
-        select
-          repairtypeid, repairtypename
-        from property.repairtype
-        <where>
-            <if test="repairtypeid != null">
-                and repairtypeid = #{repairtypeid}
-            </if>
-            <if test="repairtypename != null and repairtypename != ''">
-                and repairtypename = #{repairtypename}
-            </if>
-        </where>
-    </select>
-
-    <!--新增所有列-->
-    <insert id="insert" keyProperty="repairtypeid" useGeneratedKeys="true">
-        insert into property.repairtype(repairtypename)
-        values (#{repairtypename})
-    </insert>
-
-    <!--通过主键修改数据-->
-    <update id="update">
-        update property.repairtype
-        <set>
-            <if test="repairtypename != null and repairtypename != ''">
-                repairtypename = #{repairtypename},
-            </if>
-        </set>
-        where repairtypeid = #{repairtypeid}
-    </update>
-
-    <!--通过主键删除-->
-    <delete id="deleteById">
-        delete from property.repairtype where repairtypeid = #{repairtypeid}
-    </delete>
 
 </mapper>

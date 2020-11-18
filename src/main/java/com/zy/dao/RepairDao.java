@@ -212,4 +212,11 @@ public interface RepairDao extends BaseMapper<Repair> {
      */
     @Select("select rt.repairtypename as type, count(*) as count from repair r, repairtype rt where r.typeid = rt.repairtypeid GROUP BY r.typeid")
     List<Map<String,Object>> countByType();
+
+    /**
+     * 管理员按性别统计维修员人数
+     * @return
+     */
+    @Select("select if(r.sex=1 ,'男','女') as name,count(*) as value from repair r GROUP BY r.sex")
+    List<Map<String,Object>> countBySex();
 }

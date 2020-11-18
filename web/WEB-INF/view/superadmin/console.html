@@ -16,10 +16,10 @@
     </style>
 </head>
 <body>
-<div style="position: fixed;right: 0px;top:200px;z-index: 99999;width: 50px;background: #FFF" class="right">
+<div style="position: fixed;right: 0px;top:200px;z-index: 99999;width: 80px;background: #FFF" class="right">
     <div><a class="layui-icon layui-icon-search" href="#fandanmaodian">订单</a></div>
     <div><a class="layui-icon layui-icon-search" href="#repair">维修员</a></div>
-    <div><a class="layui-icon layui-icon-search" href="#drivermaodian"></a></div>
+    <div><a class="layui-icon layui-icon-search" href="#type">类型</a></div>
     <div><a class="layui-icon layui-icon-search" href="#applymaodian"></a></div>
     <div><a class="layui-icon layui-icon-search" href="#carmaodian"></a></div>
 </div>
@@ -166,10 +166,12 @@
                     <div class="layui-tab-item layui-show">
                         <div class="layui-row">
                             <div class="layui-col-md6">
-                                <div style="width: 1024px;height: 500px" id="repairTypeCount"></div>
+                                <!--根据维修员类型统计-->
+                                <div style="width: 500px;height: 500px" id="repairTypeCount"></div>
                             </div>
                             <div class="layui-col-md6">
-                                维修员性别
+                                <!--根据维修员性别统计-->
+                                <div style="width: 500px;height: 500px" id="repairTypeSex"></div>
                             </div>
                         </div>
                     </div>
@@ -179,6 +181,55 @@
     </div>
 </div>
 
+<div style="padding: 20px; background-color: #F2F2F2;max-height: 100%"  id="type">
+    <div class="layui-card">
+        <div class="layui-card-header">类型</div>
+        <div class="layui-card-body">
+            <div class="layui-tab" lay-filter="typeStatiscal">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">工单类型</li>
+                    <li class="layui-this">工种类型</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <div class="layui-row">
+                            <div class="layui-col-md6">
+                                <!--工单类型统计-->
+                                <div style="width: 500px;height: 500px" id="worktypeCount"></div>
+                            </div>
+                            <div class="layui-col-md6">
+                                <!--数据表格-->
+                                <table id="workType" lay-filter="workType"></table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-tab-item">
+                        <div class="layui-row">
+                            <div class="layui-col-md6">
+                                <!--工种类型统计-->
+                                <div style="width: 500px;height: 500px" id="repairTypeCountNumbers"></div>
+                            </div>
+                            <div class="layui-col-md6">
+                                <!--数据表格-->
+                                <table id="repairType" lay-filter="repairType"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script type="text/html" id="workTypeTools">
+    <div class="layui-btn-container">
+        <span class="layui-badge" >右侧图标导出</span>
+    </div>
+</script>
 <script src="/static/jquery/jquery-3.4.1.min.js"></script>
 <script src="/static/echarts/echarts.min.js"></script>
 <script src="/static/layui/layui.js"></script>
@@ -570,7 +621,7 @@
         repairTypeCount.showLoading();
         $.ajax({
             type: 'get',
-            url: '/merchantorder/numOfBorrow',
+            url: '/adminStatistical/repair/countByType',
             dataType: 'json',
             contentType: 'application/json',
             success: function (data2) {
@@ -587,8 +638,8 @@
                 }
                 option = {
                     title: {
-                        text: '订单类型',
-                        subtext: 'Department-BorrowCount'
+                        text: '维修员类型',
+                        subtext: 'Repair-Type'
                     },
                     xAxis: {
                         data: dataAxis,
@@ -669,6 +720,244 @@
             }
         });
 
+        /**
+         * 按性别统计维修员人数
+         */
+       let repairTypeSex = echarts.init(document.getElementById('repairTypeSex'));
+        repairTypeSex.showLoading();
+        $.ajax({
+            type: 'get',
+            url: '/adminStatistical/repair/countBySex',
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (data) {
+                let option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{a} <br/>{b}: {c} ({d}%)'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 10,
+                        data: ['男', '女']
+                    },
+                    series: [
+                        {
+                            name: '性别-人数',
+                            type: 'pie',
+                            radius: ['50%', '70%'],
+                            avoidLabelOverlap: false,
+                            label: {
+                                show: false,
+                                position: 'center'
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '30',
+                                    fontWeight: 'bold'
+                                }
+                            },
+                            labelLine: {
+                                show: false
+                            },
+                            data: data
+                        }
+                    ]
+                };
+                repairTypeSex.setOption(option)
+                repairTypeSex.hideLoading();
+            }
+        });
+
+
+        /**
+         * 统计工单类型（饼形）
+         */
+        let worktypeCount = echarts.init(document.getElementById('worktypeCount'));
+        worktypeCount.showLoading();
+        $.ajax({
+            type: 'get',
+            url: '/adminStatistical/workType/countNames',
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (data) {
+                let option = {
+                    backgroundColor: '#2c343c',
+
+                    title: {
+                        text: '工单类型',
+                        left: 'center',
+                        top: 20,
+                        textStyle: {
+                            color: '#ccc'
+                        }
+                    },
+
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{a} <br/>{b} : {c} ({d}%)'
+                    },
+
+                    visualMap: {
+                        show: false,
+                        min: 1,
+                        max: 1,
+                        inRange: {
+                            colorLightness: [0, 1]
+                        }
+                    },
+                    series: [
+                        {
+                            name: '工单类型',
+                            type: 'pie',
+                            radius: '55%',
+                            center: ['50%', '50%'],
+                            data: data,
+                            roseType: 'radius',
+                            label: {
+                                color: 'rgba(255, 255, 255, 0.3)'
+                            },
+                            labelLine: {
+                                lineStyle: {
+                                    color: 'rgba(255, 255, 255, 0.3)'
+                                },
+                                smooth: 0.2,
+                                length: 10,
+                                length2: 20
+                            },
+                            itemStyle: {
+                                color: '#b7ded9',
+                                shadowBlur: 10,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            },
+
+                            animationType: 'scale',
+                            animationEasing: 'elasticOut',
+                            animationDelay: function (idx) {
+                                return Math.random() * 200;
+                            }
+                        }
+                    ]
+                };
+                worktypeCount.setOption(option)
+                worktypeCount.hideLoading();
+            }
+        });
+        <!--工单类型数据表格-->
+        table.render({
+            elem: '#workType'
+            ,height: 500
+            ,url: '/adminStatistical/workType/list' //数据接口
+            ,title: '工单类型'
+            ,page: false //开启分页
+            ,totalRow: false //开启合计行
+            ,toolbar: '#workTypeTools'
+            ,method:'get'
+            ,cols: [[ //表头
+                {field: 'worktypeid', title: 'ID', align:'center',fixed: 'left',hide: true}
+                ,{type:'numbers',title:'序列'}
+                ,{field: 'workname', title: '工单类型', align:'center'}
+            ]]
+        });
+
+        <!--类型统计tab 面板 切换重新渲染数据表格 -->
+        element.on('tab(typeStatiscal)', function(data){
+            table.reload('repairType', {
+                url: '/adminStatistical/repairType/list'
+                ,where: {} //设定异步数据接口的额外参数
+            });
+        });
+
+        /**
+         * 统计工种类型（饼形）
+         */
+        let repairtypeCount = echarts.init(document.getElementById('repairTypeCountNumbers'));
+        repairtypeCount.showLoading();
+        $.ajax({
+            type: 'get',
+            url: '/adminStatistical/repairType/countNames',
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (data) {
+                let option = {
+                    backgroundColor: '#2c343c',
+
+                    title: {
+                        text: '工种类型',
+                        left: 'center',
+                        top: 20,
+                        textStyle: {
+                            color: '#ccc'
+                        }
+                    },
+
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{a} <br/>{b} : {c} ({d}%)'
+                    },
+
+                    visualMap: {
+                        show: false,
+                        min: 1,
+                        max: 1,
+                        inRange: {
+                            colorLightness: [0, 1]
+                        }
+                    },
+                    series: [
+                        {
+                            name: '工种类型',
+                            type: 'pie',
+                            radius: '55%',
+                            center: ['50%', '50%'],
+                            data: data,
+                            roseType: 'radius',
+                            label: {
+                                color: 'rgba(255, 255, 255, 0.3)'
+                            },
+                            labelLine: {
+                                lineStyle: {
+                                    color: 'rgba(255, 255, 255, 0.3)'
+                                },
+                                smooth: 0.2,
+                                length: 10,
+                                length2: 20
+                            },
+                            itemStyle: {
+                                color: '#b7ded9',
+                                shadowBlur: 10,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            },
+
+                            animationType: 'scale',
+                            animationEasing: 'elasticOut',
+                            animationDelay: function (idx) {
+                                return Math.random() * 200;
+                            }
+                        }
+                    ]
+                };
+                repairtypeCount.setOption(option)
+                repairtypeCount.hideLoading();
+            }
+        });
+        <!--工种类型数据表格-->
+        table.render({
+            elem: '#repairType'
+            ,height: 500
+            ,url: '/adminStatistical/repairType/list' //数据接口
+            ,title: '工种类型'
+            ,page: false //开启分页
+            ,totalRow: false //开启合计行
+            ,toolbar: '#workTypeTools'
+            ,method:'get'
+            ,cols: [[ //表头
+                {field: 'repairtypeid', title: 'ID', align:'center',fixed: 'left',hide: true}
+                ,{type:'numbers',title:'序列'}
+                ,{field: 'repairtypename', title: '工种类型', align:'center'}
+            ]]
+        });
     })
 </script>
 </body>
