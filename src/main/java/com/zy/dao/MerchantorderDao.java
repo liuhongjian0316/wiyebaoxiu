@@ -114,4 +114,43 @@ public interface MerchantorderDao extends BaseMapper<Merchantorder> {
      */
     @Select("select * from repair where repairid = #{repairid} and state = 1")
     public List<Map<String,Object>> repairQdFindState(@Param("repairid") int repairid);
+
+    /**
+     * 商户统计 途径
+     * @param shopId
+     * @return
+     */
+    @Select("select \n" +
+            "CASE m.workstate\n" +
+            "\tWHEN 0 THEN '普通订单'\n" +
+            "\tWHEN 1 THEN '悬赏订单'\n" +
+            "\tWHEN 2 THEN '电话订单'\n" +
+            "END  as type\n" +
+            ", count(*) as count from merchantorder m where m.merchantid = 1 GROUP BY m.workstate")
+    List<Map<String,Object>> selCountMethodByShopId(@Param("shopId") String shopId);
+
+    /**
+     * 商户统计 类型
+     * @param shopId
+     * @return
+     */
+    @Select("SELECT w.workname as type2,count(*) as count2 from merchantorder m ,woktype w where m.worktypeid =  w.worktypeid and m.merchantid = #{shopId} GROUP BY m.worktypeid")
+    List<Map<String,Object>> selCountTypeByShopId(@Param("shopId")String shopId);
+
+    /**
+     * 商户按时间查询自己订单
+     * @param time
+     * @return
+     */
+    @Select("select count(*) from merchantorder where DATE_FORMAT(reserve_time, '%Y-%m-%d') = #{time} and merchantid = #{id}")
+    int shopSelByTime(@Param("time") String time,@Param("id")String id);
+
+    /**
+     * 维修员按时间查询自己订单
+     * @param time
+     * @return
+     */
+    @Select("select count(*) from merchantorder where DATE_FORMAT(reserve_time, '%Y-%m-%d') = #{time} and repairid = #{id}")
+    int repairSelByTime(@Param("time") String time,@Param("id")String id);
+
 }

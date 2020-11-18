@@ -12,8 +12,7 @@ import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * (Merchantorder)表服务实现类
@@ -124,6 +123,44 @@ public class MerchantorderServiceImpl implements MerchantorderService {
     @Override
     public List<Map<String, Object>> repairQdFindState(int repairid) {
         return merchantorderDao.repairQdFindState(repairid);
+    }
+
+    @Override
+    public List<Map<String, Object>> selTypeOfType(String shopId) {
+        //途径订单
+        List<Map<String, Object>> list = merchantorderDao.selCountMethodByShopId(shopId);
+        List<Map<String, Object>> list2 = new ArrayList<>();
+        list.forEach(i->{
+            Map<String,Object> map = new HashMap<>();
+            map.put(i.get("type").toString(),i.get("count"));
+            map.put("数量","数量");
+            list2.add(map);
+        });
+        return list2;
+    }
+
+    @Override
+    public List<Map<String, Object>> selTypeOfType2(String shopId) {
+        //途径订单
+        List<Map<String, Object>> list = merchantorderDao.selCountTypeByShopId(shopId);
+        List<Map<String, Object>> list2 = new ArrayList<>();
+        list.forEach(i->{
+            Map<String,Object> map = new HashMap<>();
+            map.put(i.get("type2").toString(),i.get("count2"));
+            map.put("数量","数量");
+            list2.add(map);
+        });
+        return list2;
+    }
+
+    @Override
+    public int shopSelByTime(String time, String id) {
+        return merchantorderDao.shopSelByTime(time,id);
+    }
+
+    @Override
+    public int repairSelByTime(String time, String id) {
+        return merchantorderDao.repairSelByTime(time,id);
     }
 
 

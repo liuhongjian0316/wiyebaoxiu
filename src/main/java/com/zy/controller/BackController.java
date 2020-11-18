@@ -135,4 +135,23 @@ public class BackController {
     public String allOkOrder(){
         return "/merchant/allOkOrder";
     }
+
+    /**
+     * 商户控制台
+     * @return
+     */
+    @RequestMapping(value= "/merchant/console")
+    public String merchantConsole(){
+        return "/merchant/console";
+    }
+
+
+    /**
+     * 维修员控制台
+     * @return
+     */
+    @RequestMapping(value= "/repair/console")
+    public String repairConsole(){
+        return "/repair/console";
+    }
 }

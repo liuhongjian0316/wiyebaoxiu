@@ -176,6 +176,12 @@ public class MerchantorderController {
         return JSONResult.errorMsg("服务器故障,请联系管理员");
     }
 
+    /**
+     * 按时间统计订单
+     * @param time
+     * @return
+     */
+    @ResponseBody
     @RequestMapping(value = "/countByTime",method = RequestMethod.GET)
     public  List<Map<String,Object>> countByTime(@RequestParam("time") String time){
         String[] split = time.split(" ~ ");

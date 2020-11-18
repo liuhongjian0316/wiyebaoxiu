@@ -119,4 +119,34 @@ public interface MerchantorderService {
      * @return
      */
     public List<Map<String,Object>> repairQdFindState(int repairid);
+
+    /**
+     * 商户统计各种类型
+     * @param shopId
+     * @return
+     */
+    List<Map<String,Object>> selTypeOfType(String shopId);
+
+
+    List<Map<String,Object>> selTypeOfType2(String shopId);
+
+
+    /**
+     * 商户统计按时间
+     * @param time
+     * @param id
+     * @return
+     */
+    int shopSelByTime(String time,String id);
+
+    /**
+     * 维修员统计自己的订单按时间统计
+     * @param time
+     * @param id
+     * @return
+     */
+    int repairSelByTime(String time,String id);
+
+
+
 }
